@@ -188,13 +188,15 @@ def contast_within_classes_or_few_per_class(feats,inds,min_cl,ncl):
 	ff = zip(*[v for n,v in feats.items() if n != 'class'])
 	cols = [ff[i] for i in inds]
 	cls = [feats['class'][i] for i in inds]
-	if len(set(cls)) < ncl: return True 
+	if len(set(cls)) < ncl:
+		return True
 	for c in set(cls):
 		if cls.count(c) < min_cl:
 			return True
 		cols_cl = [x for i,x in enumerate(cols) if cls[i] == c]
 		for i,col in enumerate(zip(*cols_cl)):
-			if len(set(col)) <= 2: return True
+			if len(set(col)) <= min_cl:
+				return True
 	return False 
 def test_lda_r_old(cls,feats,cl_sl,boots,fract_sample,lda_th,tol_min):
 	fk = feats.keys()
@@ -286,13 +288,13 @@ def test_lda_r(cls,feats,cl_sl,boots,fract_sample,lda_th,tol_min,nlogs):
 				robjects.r('ss <- ss[,-match("subject",colnames(ss))]')
 			robjects.r('xy.matrix <- as.matrix(ss)')
 			robjects.r('LD <- xy.matrix%*%w.unit')
-#			robjects.r('LD <- LD[,1]')
 			robjects.r('effect.size <- abs(mean(LD[sub_d[,"class"]=="'+p[0]+'"]) - mean(LD[sub_d[,"class"]=="'+p[1]+'"]))')
 			scal = robjects.r('wfinal <- w.unit * effect.size')
 			rres = robjects.r('mm <- z$means')
-	
-			coeff = [abs(float(v)) for v in scal]
-                	res = dict([(pp,[float(ff) for ff in rres.rx(pp,True)]) for pp in [p[0],p[1]]])
+			rowns = list(rres.rownames)
+			lenc = len(list(rres.colnames))
+			coeff = [abs(float(v)) if not math.isnan(float(v)) else 0.0 for v in scal]
+                	res = dict([(pp,[float(ff) for ff in rres.rx(pp,True)] if pp in rowns else [0.0]*lenc ) for pp in [p[0],p[1]]])
 			for j,k in enumerate(fk):
 				gm = abs(res[p[0]][j] - res[p[1]][j])
                         	means[k][i].append((gm+coeff[j])*0.5)
