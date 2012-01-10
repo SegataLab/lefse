@@ -169,7 +169,7 @@ def test_lda_r(cls,feats,cl_sl,boots,fract_sample,lda_th,tol_min,nlogs):
         f = "class ~ "+fk[0]
         for k in fk[1:]: f += " + " + k.strip()
         ncl = len(set(cls['class']))
-        min_cl = int(float(min([cls['class'].count(c) for c in set(cls['class'])]))*fract_sample*fract_sample)
+        min_cl = int(float(min([cls['class'].count(c) for c in set(cls['class'])]))*fract_sample*fract_sample*0.5)
         pairs = [(a,b) for a in set(cls['class']) for b in set(cls['class']) if a > b]
 
 	for k in fk:	
