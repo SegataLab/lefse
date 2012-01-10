@@ -129,60 +129,6 @@ def test_rep_wilcoxon_r(sl,cl_hie,feats,th,multiclass_strat,mul_cor,fn,min_c,com
 	return True 
 
 
-""""
-
-def test_rep_wilcoxon_r(sl,cl_hie,feats,th,multiclass_strat,mul_cor,fn,min_c,comp_only_same_subcl):
-	comp_all_sub = not comp_only_same_subcl
-	tot_ok =  0
-	alpha_mtc = th
-	all_diff = []
-	for pair in [(x,y) for x in cl_hie.keys() for y in cl_hie.keys() if x < y]:
-		dir_cmp = "not_set" #
-		l_subcl1, l_subcl2 = (len(cl_hie[pair[0]]), len(cl_hie[pair[1]]))
-		if mul_cor != 0: alpha_mtc = th*l_subcl1*l_subcl2 if mul_cor == 2 else 1.0-math.pow(1.0-th,l_subcl1*l_subcl2)
-		ok = 0
-		first = True
-		for i,k1 in enumerate(cl_hie[pair[0]]):
-			br = False
-			for j,k2 in enumerate(cl_hie[pair[1]]):
-				if not comp_all_sub and k1[len(pair[0]):] != k2[len(pair[1]):]: 
-					ok += 1	
-					continue 
-				cl1 = feats[sl[k1][0]:sl[k1][1]]
-				cl2 = feats[sl[k2][0]:sl[k2][1]]
-				med_comp = False
-				if len(cl1) < min_c or len(cl2) < min_c: med_comp = True
-				sx,sy = numpy.median(cl1),numpy.median(cl2)
-				if cl1[0] == cl2[0] and len(set(cl1)) == 1 and  len(set(cl2)) == 1: 
-					tres, first = False, False
-				elif not med_comp:
-					robjects.globalenv["x"] = robjects.FloatVector(cl1+cl2)
-					robjects.globalenv["y"] = robjects.FactorVector(robjects.StrVector(["a" for a in cl1]+["b" for b in cl2]))	
-					pv = float(robjects.r('pvalue(wilcox_test(x~y,data=data.frame(x,y)))')[0])
-					tres = pv < alpha_mtc*2.0
-				if first:
-					first = False
-					if med_comp or tres: dir_cmp = sx < sy
-					else: br = True
-				elif (med_comp and ((sx < sy) != dir_cmp or sx == sy)) or (not med_comp and (not tres or (sx < sy) != dir_cmp or sx == sy)): br = True
-				if br: break
-				ok += 1
-			if br: break
-		diff = (ok == len(cl_hie[pair[1]])*len(cl_hie[pair[0]])) # or (not comp_all_sub and dir_cmp != "not_set") 
-		if diff: tot_ok += 1
-		if not diff and multiclass_strat: return False
-		if diff and not multiclass_strat: all_diff.append(pair)
-	if not multiclass_strat:
-		tot_k = len(cl_hie.keys())
-		for k in cl_hie.keys():
-			nk = 0
-			for a in all_diff:
-				if k in a: nk += 1
-			if nk == tot_k-1: return True
-		return False
-	return True 
-"""
-
 
 def contast_within_classes_or_few_per_class(feats,inds,min_cl,ncl):
 	ff = zip(*[v for n,v in feats.items() if n != 'class'])
@@ -198,47 +144,6 @@ def contast_within_classes_or_few_per_class(feats,inds,min_cl,ncl):
 			if len(set(col)) <= min_cl:
 				return True
 	return False 
-def test_lda_r_old(cls,feats,cl_sl,boots,fract_sample,lda_th,tol_min):
-	fk = feats.keys()
-	means = dict([(k,[]) for k in feats.keys()])
-	feats['class'] = list(cls['class'])
-	clss = list(set(feats['class']))
-	for uu,k in enumerate(fk):
-		if k == 'class': continue
-		ff = [(feats['class'][i],v) for i,v in enumerate(feats[k])] 		
-		for c in clss:
-			if len(set([float(v[1]) for v in ff if v[0] == c])) > max(float(feats['class'].count(c))*0.1,2): continue
-			for i,v in enumerate(feats[k]):
-				if feats['class'][i] == c:
-					feats[k][i] = math.fabs(feats[k][i] + lrand.normalvariate(0.0,max(feats[k][i]*0.05,0.01)))
-	rdict = {}
-	for a,b in feats.items():
-		if a == 'class' or a == 'subclass' or a == 'subject':
-			rdict[a] = robjects.StrVector(b)
-		else: rdict[a] = robjects.FloatVector(b)
-	robjects.globalenv["d"] = robjects.DataFrame(rdict)
-	lfk = len(feats[fk[0]])
-	rfk = int(float(len(feats[fk[0]]))*fract_sample)
-	f = "class ~ "+fk[0]
-	for k in fk[1:]: f += " + " + k.strip()
-	ncl = len(set(cls['class']))
-	min_cl = int(float(min([cls['class'].count(c) for c in set(cls['class'])]))*fract_sample*fract_sample)
-	pairs = [(a,b) for a in set(cls['class']) for b in set(cls['class']) if a > b]
-	for i in range(boots):
-		while True:
-			rand_s = [lrand.randint(0,lfk-1) for v in range(rfk)]
-			if not contast_within_classes_or_few_per_class(feats,rand_s,min_cl,ncl): break
-		robjects.globalenv["rand_s"] = robjects.IntVector(rand_s)
-		robjects.globalenv["sub_d"] = robjects.r('d[rand_s,]')	
-		rres = robjects.r('suppressWarnings(lda(as.formula('+f+'),data=sub_d,tol='+str(tol_min)+'))$means')
-		res = dict([(p,[float(ff) for ff in rres.rx(p,True)]) for p in set(cls['class'])])
-		for j,k in enumerate(fk):
-			means[k].append( [res[p[0]][j] - res[p[1]][j] for p in pairs] )
-	res = {}
-	for k in fk:
-		m = numpy.mean([numpy.mean(means[k][:][kk]) for kk in range(len(pairs))]) # or the max??
-		res[k] = math.copysign(1.0,m)*math.log(1.0+math.fabs(m),10)
-	return res,dict([(k,x) for k,x in res.items() if math.fabs(x) > lda_th])
 
 def test_lda_r(cls,feats,cl_sl,boots,fract_sample,lda_th,tol_min,nlogs):
         fk = feats.keys()
@@ -249,7 +154,7 @@ def test_lda_r(cls,feats,cl_sl,boots,fract_sample,lda_th,tol_min,nlogs):
                 if k == 'class': continue
                 ff = [(feats['class'][i],v) for i,v in enumerate(feats[k])]
                 for c in clss:
-                        if len(set([float(v[1]) for v in ff if v[0] == c])) > max(float(feats['class'].count(c))*0.1,4): continue
+                        if len(set([float(v[1]) for v in ff if v[0] == c])) > max(float(feats['class'].count(c))*0.5,4): continue
                         for i,v in enumerate(feats[k]):
                                 if feats['class'][i] == c:
                                         feats[k][i] = math.fabs(feats[k][i] + lrand.normalvariate(0.0,max(feats[k][i]*0.05,0.01)))
