@@ -205,6 +205,10 @@ def rename_same_subcl(cl,subcl):
 if  __name__ == '__main__':
 	params = read_params(sys.argv)
 
+	if type(params['subclass']) is int and int(params['subclass']) < 1:
+		params['subclass'] = None
+	if type(params['subject']) is int and int(params['subject']) < 1:
+		params['subject'] = None
 	data = read_input_file(sys.argv[1])
 
 	if params['feats_dir'] == "c":
@@ -217,7 +221,7 @@ if  __name__ == '__main__':
 	first_line = zip(*data)[0]
 	
 	first_line = modify_feature_names(list(first_line))
-	
+
 	data = zip(	first_line,
 			*sort_by_cl(zip(*data)[1:],
 			  ncl,
