@@ -33,12 +33,13 @@ def read_params(args):
 	args = parser.parse_args()
 	return vars(args)
 
-def read_data(input_file):
+def read_data(input_file,output_file):
 	with open(input_file, 'r') as inp:
 		rows = [line.strip().split() for line in inp.readlines() if len(line.strip().split())>2]
 	classes = list(set([v[2] for v in rows if len(v)>2]))
 	if len(classes) < 1: 
 		print "No differentially abundant features found in "+input_file
+		os.system("touch "+output_file)
 		sys.exit()
 	data = {}
 	data['rows'] = rows
@@ -145,7 +146,7 @@ def plot_histo_ver(path,params,data):
 if __name__ == '__main__':
 	params = read_params(sys.argv)
 	params['fore_color'] = 'w' if params['back_color'] == 'k' else 'k'
-	data = read_data(params['input_file'])
+	data = read_data(params['input_file'],params['output_file'])
 	if params['orientation'] == 'v': plot_histo_ver(params['output_file'],params,data)
 	else: plot_histo_hor(params['output_file'],params,data,len(data['cls']) == 2)
 
