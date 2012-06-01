@@ -177,7 +177,7 @@ def test_lda_r(cls,feats,cl_sl,boots,fract_sample,lda_th,tol_min,nlogs):
 		for i in range(boots):
 			means[k].append([])	
         for i in range(boots):
-                for rtmp in tange(1000):
+                for rtmp in range(1000):
                         rand_s = [lrand.randint(0,lfk-1) for v in range(rfk)]
                         if not contast_within_classes_or_few_per_class(feats,rand_s,min_cl,ncl): break
 		means[k][i] = []
