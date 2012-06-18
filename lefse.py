@@ -31,8 +31,9 @@ def save_res(res,filename):
 					if vv == max(v):
 						out.write(str(res['cls_means_kord'][i])+"\t")
 						break
-				out.write(str(res['lda_res'][k])+"\n") 
-			else: out.write("\t\n")
+				out.write(str(res['lda_res'][k])) 
+			else: out.write("\t")
+			out.write( "\t" + res['wilcox_res'][k]+"\n")
 
 def load_data(input_file, nnorm = False):
 	with open(input_file, 'rb') as inputf:
@@ -56,7 +57,7 @@ def test_kw_r(cls,feats,p,factors):
 		if len(set(cls[f])) == len(cls[f]): continue
 		fo += "+x"+str(i+2)
 	kw_res = robjects.r('kruskal.test('+fo+',)$p.value')
-	return float(tuple(kw_res)[0]) < p
+	return float(tuple(kw_res)[0]) < p, float(tuple(kw_res)[0])
 
 def test_rep_wilcoxon_r(sl,cl_hie,feats,th,multiclass_strat,mul_cor,fn,min_c,comp_only_same_subcl,curv=False):
 	comp_all_sub = not comp_only_same_subcl

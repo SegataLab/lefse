@@ -38,7 +38,7 @@ def read_params(args):
 	
 def read_data(file_data,file_feats,params):
 	with open(file_feats, 'r') as features:
-		feats_to_plot = [(f.split(),len(f.split()) == 4) for f in features.readlines()]
+		feats_to_plot = [(f.split()[:-1],len(f.split()) == 5) for f in features.readlines()]
 	if not feats_to_plot:
 		print "No features to plot\n"
 		sys.exit(0)

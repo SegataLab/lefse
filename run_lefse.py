@@ -64,7 +64,7 @@ if __name__ == '__main__':
 		if params['verbose']:
 			print "Testing feature",str(nf),": ",feat_name,
 			nf += 1
-		kw_ok = test_kw_r(cls,feat_values,params['anova_alpha'],sorted(cls.keys()))
+		kw_ok,pv = test_kw_r(cls,feat_values,params['anova_alpha'],sorted(cls.keys()))
 		if not kw_ok:
 			if params['verbose']: print "\tkw ko" 
 			del feats[feat_name]
@@ -75,7 +75,7 @@ if __name__ == '__main__':
 		if not params['wilc']: continue
 		kw_n_ok += 1	
 		res_wilcoxon_rep = test_rep_wilcoxon_r(subclass_sl,class_hierarchy,feat_values,params['wilcoxon_alpha'],params['multiclass_strat'],params['strict'],feat_name,params['min_c'],params['only_same_subcl'],params['curv'])
-		wilcoxon_res[feat_name] = "OK" if res_wilcoxon_rep else "KO"
+		wilcoxon_res[feat_name] = str(pv) if res_wilcoxon_rep else "-"
 		if not res_wilcoxon_rep:
 			if params['verbose']: print "wilc ko" 
 			del feats[feat_name]
@@ -98,5 +98,6 @@ if __name__ == '__main__':
 	outres['lda_res'] = lda_res
 	outres['cls_means'] = cls_means
 	outres['cls_means_kord'] = kord
+	outres['wilcox_res'] = wilcoxon_res
 	print "Number of discriminative features with abs LDA score >",params['lda_abs_th'],":",len(lda_res_th) 
 	save_res(outres,params["output_file"])
