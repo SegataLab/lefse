@@ -98,8 +98,8 @@ def get_all_nodes(father):
 
 def read_data(input_file,params):
 	with open(input_file, 'r') as inp:
-		if params['sub_clade'] == "": rows = [line.strip().split() for line in inp.readlines() if params['max_lev'] < 1 or line.split()[0].count(".") < params['max_lev']]
-		else: rows = [line.split(params['sub_clade']+".")[1].strip().split() for line in inp.readlines() if ( params['max_lev'] < 1 or line.split()[0].count(".") < params['max_lev'] ) and line.startswith(params['sub_clade']+".")]
+		if params['sub_clade'] == "": rows = [line.strip().split()[:-1] for line in inp.readlines() if params['max_lev'] < 1 or line.split()[0].count(".") < params['max_lev']]
+		else: rows = [line.split(params['sub_clade']+".")[1].strip().split()[:-1] for line in inp.readlines() if ( params['max_lev'] < 1 or line.split()[0].count(".") < params['max_lev'] ) and line.startswith(params['sub_clade']+".")]
 	all_names = [lin[0] for lin in rows]
 	to_add = []
 

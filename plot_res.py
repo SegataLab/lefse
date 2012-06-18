@@ -35,7 +35,7 @@ def read_params(args):
 
 def read_data(input_file,output_file):
 	with open(input_file, 'r') as inp:
-		rows = [line.strip().split() for line in inp.readlines() if len(line.strip().split())>2]
+		rows = [line.strip().split()[:-1] for line in inp.readlines() if len(line.strip().split())>3]
 	classes = list(set([v[2] for v in rows if len(v)>2]))
 	if len(classes) < 1: 
 		print "No differentially abundant features found in "+input_file
