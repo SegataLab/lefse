@@ -142,7 +142,7 @@ def contast_within_classes_or_few_per_class(feats,inds,min_cl,ncl):
 			return True
 		cols_cl = [x for i,x in enumerate(cols) if cls[i] == c]
 		for i,col in enumerate(zip(*cols_cl)):
-			if len(set(col)) <= min_cl:
+			if (len(set(col)) <= min_cl and min_cl > 1) or (min_cl == 1 and len(set(col)) == 0):
 				return True
 	return False 
 
@@ -181,6 +181,7 @@ def test_lda_r(cls,feats,cl_sl,boots,fract_sample,lda_th,tol_min,nlogs):
                 for rtmp in range(1000):
                         rand_s = [lrand.randint(0,lfk-1) for v in range(rfk)]
                         if not contast_within_classes_or_few_per_class(feats,rand_s,min_cl,ncl): break
+                rand_s = [r+1 for r in rand_s]
 		means[k][i] = []
 		for p in pairs:
 	        	robjects.globalenv["rand_s"] = robjects.IntVector(rand_s)
