@@ -99,7 +99,7 @@ def plot_histo_hor(path,params,data,bcl):
 		if len(ran) > 1 and len(ran) < 100:
 			ax.set_xticks(arange(xlim[0],xlim[1]+0.0001,min(xlim[1]+0.0001,round(round((abs(xlim[0])+abs(xlim[1]))/10,4)*100,0)/100)))
 	ax.set_ylim((pos[0]-1,pos[-1]+1))
-	leg = ax.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3, ncol=5, mode="expand", borderaxespad=0., frameon=False,prop={'size':params['class_legend_font_size']})
+	leg = ax.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3, ncol=5, borderaxespad=0., frameon=False,prop={'size':params['class_legend_font_size']})
 
 	def get_col_attr(x):
                 return hasattr(x, 'set_color') and not hasattr(x, 'set_facecolor')
