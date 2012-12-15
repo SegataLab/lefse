@@ -258,9 +258,9 @@ if  __name__ == '__main__':
 
 	if params['output_table']:
 		with open( params['output_table'], "w") as outf: 
-			if 'class' in cls: outf.write( "\t".join(["class"]+cls['class']) + "\n" )
+			if 'class' in cls: outf.write( "\t".join(list(["class"])+list(cls['class'])) + "\n" )
 			if 'subclass' in cls: outf.write( "\t".join(["subclass"]+cls['subclass']) + "\n" )
-			if 'subject' in cls: outf.write( "\t".join(i["subject"]+cls['subject'])  + "\n" )
+			if 'subject' in cls: outf.write( "\t".join(["subject"]+cls['subject'])  + "\n" )
 			for k,v in out['feats'].items(): outf.write( "\t".join([k]+[str(vv) for vv in v]) + "\n" )
 
 	with open(params['output_file'], 'wb') as back_file:
