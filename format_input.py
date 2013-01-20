@@ -138,7 +138,7 @@ def numerical_values(feats,norm):
 		feats[k] = [val*mul[i] for i,val in enumerate(v)]
 	return feats
 
-def add_missing_levels(ff):
+def add_missing_levels2(ff):
 	
 	if sum( [f.count(".") for f in ff] ) < 1: return ff
 	
@@ -168,7 +168,25 @@ def add_missing_levels(ff):
 	return ff
 				
 				
-			
+def add_missing_levels(ff):
+	if sum( [f.count(".") for f in ff] ) < 1: return ff
+	
+	clades2leaves = {}
+	for f in ff:
+		fs = f.split(".")
+		if len(fs) < 2:
+			continue
+		for l in range(len(fs)):
+			n = ".".join( fs[:l] )
+			if n in clades2leaves:
+				clades2leaves[n].append( f )
+			else:
+				clades2leaves[n] = [f]
+	for k,v in clades2leaves.items():
+		if k not in ff:
+			ff[k] = [sum(a) for a in zip(*[[float(fn) for fn in ff[vv]] for vv in v])]
+	return ff
+
 			
 
 def modify_feature_names(fn):
