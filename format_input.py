@@ -183,7 +183,7 @@ def add_missing_levels(ff):
 			else:
 				clades2leaves[n] = [f]
 	for k,v in clades2leaves.items():
-		if k not in ff:
+		if k and k not in ff:
 			ff[k] = [sum(a) for a in zip(*[[float(fn) for fn in ff[vv]] for vv in v])]
 	return ff
 
