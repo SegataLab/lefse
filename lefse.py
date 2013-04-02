@@ -142,7 +142,7 @@ def contast_within_classes_or_few_per_class(feats,inds,min_cl,ncl):
 			return True
 		cols_cl = [x for i,x in enumerate(cols) if cls[i] == c]
 		for i,col in enumerate(zip(*cols_cl)):
-			if (len(set(col)) <= min_cl and min_cl > 1) or (min_cl == 1 and len(set(col)) == 0):
+			if (len(set(col)) <= min_cl and min_cl > 1) or (min_cl == 1 and len(set(col)) <= 1):
 				return True
 	return False 
 
