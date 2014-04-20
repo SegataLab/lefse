@@ -94,7 +94,7 @@ def test_rep_wilcoxon_r(sl,cl_hie,feats,th,multiclass_strat,mul_cor,fn,min_c,com
 					first = False
 					if not curv and ( med_comp or tres ): 
 						dir_cmp = sx < sy
-						if sx == sy: br = True
+                        #if sx == sy: br = True
 					elif curv: 
 						dir_cmp = None
 						if med_comp or tres: 
