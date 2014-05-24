@@ -52,10 +52,10 @@ def test_kw_r(cls,feats,p,factors):
 	for i,f in enumerate(factors):
 		robjects.globalenv['x'+str(i+1)] = robjects.FactorVector(robjects.StrVector(cls[f]))
 	fo = "y~x1"
-	for i,f in enumerate(factors[1:]):
-		if f == "subclass" and len(set(cls[f])) <= len(set(cls["class"])): continue
-		if len(set(cls[f])) == len(cls[f]): continue
-		fo += "+x"+str(i+2)
+    #for i,f in enumerate(factors[1:]):
+    #	if f == "subclass" and len(set(cls[f])) <= len(set(cls["class"])): continue
+    #	if len(set(cls[f])) == len(cls[f]): continue
+    #	fo += "+x"+str(i+2)
 	kw_res = robjects.r('kruskal.test('+fo+',)$p.value')
 	return float(tuple(kw_res)[0]) < p, float(tuple(kw_res)[0])
 
