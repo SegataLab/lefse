@@ -33,7 +33,7 @@ def save_res(res,filename):
 						break
 				out.write(str(res['lda_res'][k])) 
 			else: out.write("\t")
-			out.write( "\t" + res['wilcox_res'][k]+"\n")
+			out.write( "\t" + (res['wilcox_res'][k] if 'wilcox_res' in res and k in res['wilcox_res'] else "-")+"\n")
 
 def load_data(input_file, nnorm = False):
 	with open(input_file, 'rb') as inputf:
