@@ -84,7 +84,7 @@ def plot_histo_hor(path,params,data,bcl):
 	for i,r in enumerate(data['rows']):
 		indcl = cls.index(data['rows'][i][2])
 		if params['n_scl'] < 0: rr = r[0]
-		else: rr = r[0].split(".")[-min(r[0].count("."),params['n_scl'])]
+        else: rr = ".".join(r[0].split(".")[-params['n_scl']:])
 		if len(rr) > params['max_feature_len']: rr = rr[:params['max_feature_len']/2-2]+" [..]"+rr[-params['max_feature_len']/2+2:]
                 if m*(indcl*2-1) < 0 and bcl: ax.text(mv/40.0,float(i)-0.3,rr, l_align, size=params['feature_font_size'],color=params['fore_color'])
                 else: ax.text(-mv/40.0,float(i)-0.3,rr, r_align, size=params['feature_font_size'],color=params['fore_color'])
