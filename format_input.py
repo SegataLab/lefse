@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys,os,argparse,pickle,re
+import sys,os,argparse,pickle,re,numpy
 
 
 
@@ -189,6 +189,8 @@ def numerical_values(feats,norm):
 		else: mul[i] = float(norm) / m
 	for k,v in feats.items():
 		feats[k] = [val*mul[i] for i,val in enumerate(v)]
+		if numpy.mean(feats[k]) and (numpy.std(feats[k])/numpy.mean(feats[k])) < 1e-10:
+			feats[k] = [ float(round(kv*1e6)/1e6) for kv in feats[k]]
 	return feats
 
 def add_missing_levels2(ff):
