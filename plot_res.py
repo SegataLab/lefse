@@ -4,6 +4,7 @@ import os,sys
 import matplotlib
 matplotlib.use('Agg')
 from pylab import *
+from collections import defaultdict
 
 from lefse import *
 import argparse
@@ -30,12 +31,16 @@ def read_params(args):
 	parser.add_argument('--subclades', dest="n_scl", type=int, default=1, help="number of label levels to be dislayed (starting from the leaves, -1 means all the levels, 1 is default )")
 	parser.add_argument('--max_feature_len', dest="max_feature_len", type=int, default=60, help="Maximum length of feature strings (def 60)")
 	parser.add_argument('--all_feats', dest="all_feats", type=str, default="")
+	parser.add_argument('--otu_only', dest="otu_only", default=False, action='store_true', help="Plot only OTUs in the LDA (as opposed to all levels)")
 	args = parser.parse_args()
 	return vars(args)
 
-def read_data(input_file,output_file):
+def read_data(input_file,output_file,otu_only):
 	with open(input_file, 'r') as inp:
-		rows = [line.strip().split()[:-1] for line in inp.readlines() if len(line.strip().split())>3]
+		if not otu_only:
+			rows = [line.strip().split()[:-1] for line in inp.readlines() if len(line.strip().split())>3]
+		else:
+			rows = [line.strip().split()[:-1] for line in inp.readlines() if len(line.strip().split())>3 and len(line.strip().split()[0].split('.'))==8] 
 	classes = list(set([v[2] for v in rows if len(v)>2]))
 	if len(classes) < 1: 
 		print "No differentially abundant features found in "+input_file
@@ -46,7 +51,7 @@ def read_data(input_file,output_file):
 	data['cls'] = classes
 	return data
 
-def plot_histo_hor(path,params,data,bcl):
+def plot_histo_hor(path,params,data,bcl,otu_only):
 	cls2 = []
 	if params['all_feats'] != "":
 		cls2 = sorted(params['all_feats'].split(":"))
@@ -71,7 +76,10 @@ def plot_histo_hor(path,params,data,bcl):
         r_align = {'horizontalalignment':'right', 'verticalalignment':'baseline'}
 	added = []
 	m = 1 if data['rows'][0][2] == cls[0] else -1
+	out_data = defaultdict(list) # keep track of which OTUs result in the plot
 	for i,v in enumerate(data['rows']):
+		if otu_only:
+			out_data[v[2]].append(v[0].split('.')[7])
 		indcl = cls.index(v[2])
 		lab = str(v[2]) if str(v[2]) not in added else ""
 		added.append(str(v[2])) 
@@ -81,6 +89,10 @@ def plot_histo_hor(path,params,data,bcl):
 		vv = fabs(float(v[3])) * (m*(indcl*2-1)) if bcl else fabs(float(v[3]))
 		ax.barh(pos[i],vv, align='center', color=col, label=lab, height=0.8, edgecolor=params['fore_color'])
 	mv = max([abs(float(v[3])) for v in data['rows']])	
+	if otu_only:
+		print 'OTUs associated with each class:'
+		for i in out_data:
+			print i, '--', ', '.join(out_data[i])
 	for i,r in enumerate(data['rows']):
 		indcl = cls.index(data['rows'][i][2])
 		if params['n_scl'] < 0: rr = r[0]
@@ -146,8 +158,8 @@ def plot_histo_ver(path,params,data):
 if __name__ == '__main__':
 	params = read_params(sys.argv)
 	params['fore_color'] = 'w' if params['back_color'] == 'k' else 'k'
-	data = read_data(params['input_file'],params['output_file'])
+	data = read_data(params['input_file'],params['output_file'],params['otu_only'])
 	if params['orientation'] == 'v': plot_histo_ver(params['output_file'],params,data)
-	else: plot_histo_hor(params['output_file'],params,data,len(data['cls']) == 2)
+	else: plot_histo_hor(params['output_file'],params,data,len(data['cls']) == 2,params['otu_only'])
 
 	
