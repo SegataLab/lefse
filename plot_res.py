@@ -40,7 +40,7 @@ def read_data(input_file,output_file,otu_only):
 		if not otu_only:
 			rows = [line.strip().split()[:-1] for line in inp.readlines() if len(line.strip().split())>3]
 		else:
-			rows = [line.strip().split()[:-1] for line in inp.readlines() if len(line.strip().split())>3 and len(line.strip().split()[0].split('.'))==8] 
+			rows = [line.strip().split()[:-1] for line in inp.readlines() if len(line.strip().split())>3 and len(line.strip().split()[0].split('.'))==8] # a feature with length 8 will have an OTU id associated with it
 	classes = list(set([v[2] for v in rows if len(v)>2]))
 	if len(classes) < 1: 
 		print "No differentially abundant features found in "+input_file
