@@ -31,7 +31,8 @@ def read_params(args):
 	parser.add_argument('--subclades', dest="n_scl", type=int, default=1, help="number of label levels to be dislayed (starting from the leaves, -1 means all the levels, 1 is default )")
 	parser.add_argument('--max_feature_len', dest="max_feature_len", type=int, default=60, help="Maximum length of feature strings (def 60)")
 	parser.add_argument('--all_feats', dest="all_feats", type=str, default="")
-	parser.add_argument('--otu_only', dest="otu_only", default=False, action='store_true', help="Plot only OTUs in the LDA (as opposed to all levels)")
+	parser.add_argument('--otu_only', dest="otu_only", default=False, action='store_true', help="Plot only species resolved OTUs (as opposed to all levels)")
+	parser.add_argument('--report_features', dest="report", default=False, action='store_true', help="Report important features to STDOUT")
 	args = parser.parse_args()
 	return vars(args)
 
@@ -51,7 +52,7 @@ def read_data(input_file,output_file,otu_only):
 	data['cls'] = classes
 	return data
 
-def plot_histo_hor(path,params,data,bcl,otu_only):
+def plot_histo_hor(path,params,data,bcl,report_features):
 	cls2 = []
 	if params['all_feats'] != "":
 		cls2 = sorted(params['all_feats'].split(":"))
@@ -78,7 +79,7 @@ def plot_histo_hor(path,params,data,bcl,otu_only):
 	m = 1 if data['rows'][0][2] == cls[0] else -1
 	out_data = defaultdict(list) # keep track of which OTUs result in the plot
 	for i,v in enumerate(data['rows']):
-		if otu_only:
+		if report_features:
 			out_data[v[2]].append(v[0].split('.')[7])
 		indcl = cls.index(v[2])
 		lab = str(v[2]) if str(v[2]) not in added else ""
@@ -89,7 +90,7 @@ def plot_histo_hor(path,params,data,bcl,otu_only):
 		vv = fabs(float(v[3])) * (m*(indcl*2-1)) if bcl else fabs(float(v[3]))
 		ax.barh(pos[i],vv, align='center', color=col, label=lab, height=0.8, edgecolor=params['fore_color'])
 	mv = max([abs(float(v[3])) for v in data['rows']])	
-	if otu_only:
+	if report_features:
 		print 'OTUs associated with each class:'
 		for i in out_data:
 			print i, '--', ', '.join(out_data[i])
@@ -124,7 +125,7 @@ def plot_histo_hor(path,params,data,bcl,otu_only):
 	plt.savefig(path,format=params['format'],facecolor=params['back_color'],edgecolor=params['fore_color'],dpi=params['dpi'])
 	plt.close()
 
-def plot_histo_ver(path,params,data):
+def plot_histo_ver(path,params,data,report_features):
 	cls = data['cls']
 	mmax = max([fabs(float(a)) for a in zip(*data['rows'])[1]])
 	data['rows'].sort(key=lambda ab: fabs(float(ab[3]))/mmax+(cls.index(ab[2])+1))
@@ -138,13 +139,20 @@ def plot_histo_ver(path,params,data):
 	l_align = {'horizontalalignment':'left', 'verticalalignment':'baseline'}
 	r_align = {'horizontalalignment':'right', 'verticalalignment':'baseline'} 
 	added = []
+	out_data = defaultdict(list) # keep track of which OTUs result in the plot
 	for i,v in enumerate(data['rows']):
+		if report_features:
+			out_data[v[2]].append(v[0].split('.')[7])
 		indcl = data['cls'].index(v[2])
 		lab = str(v[2]) if str(v[2]) not in added else ""
 		added.append(str(v[2])) 
 		col = colors[indcl%len(colors)]
 		vv = fabs(float(v[3])) 
 		ax.bar(pos[i],vv, align='center', color=col, label=lab)
+	if report_features:
+		print 'OTUs associated with each class:'
+		for i in out_data:
+			print i, '--', ', '.join(out_data[i])
 	xticks(pos,nam,rotation=-20, ha = 'left',size=params['feature_font_size'])	
 	ax.set_title(params['title'],size=params['title_font_size'])
 	ax.set_ylabel("LDA SCORE (log 10)")
@@ -159,7 +167,7 @@ if __name__ == '__main__':
 	params = read_params(sys.argv)
 	params['fore_color'] = 'w' if params['back_color'] == 'k' else 'k'
 	data = read_data(params['input_file'],params['output_file'],params['otu_only'])
-	if params['orientation'] == 'v': plot_histo_ver(params['output_file'],params,data)
-	else: plot_histo_hor(params['output_file'],params,data,len(data['cls']) == 2,params['otu_only'])
+	if params['orientation'] == 'v': plot_histo_ver(params['output_file'],params,data,params['report_features'])
+	else: plot_histo_hor(params['output_file'],params,data,len(data['cls']) == 2,params['report_features'])
 
 	
