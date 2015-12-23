@@ -7,8 +7,8 @@ def read_params(args):
     import textwrap
 
     p = ap.ArgumentParser( description= '''
-    Script will convert QIIME TSV BIOM table for use with lefse.  It is imperative that this table has taxa metadata associated with ith named 'Consensus Lineage', this can be down with e.g. the follow biom convert script: ----
-    biom convert -i otu_table_mc2_no_pynast_failures_uclust-tax_rdp-tax_n2600_d10000_AS45_mapping_d7_d8.biom -o otu_table_mc2_no_pynast_failures_uclust-tax_rdp-tax_n2600_d10000_AS45_mapping_d7_d8.txt --to-tsv --header-key rdp_taxonomy --output-metadata-id 'Consensus Lineage'
+    Script will convert QIIME TSV BIOM table for use with lefse.  It is imperative that this table has taxa metadata associated with it named 'Consensus Lineage', this can be down with e.g. the follow biom convert script: ----
+    biom convert -i otu.biom -o otu.txt --to-tsv --header-key Taxonomy --output-metadata-id 'Consensus Lineage'
     ''')
     
     p.add_argument( '--in', metavar='INPUT_FILE', type=str, 
