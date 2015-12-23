@@ -80,7 +80,7 @@ def plot_histo_hor(path,params,data,bcl,report_features):
 	out_data = defaultdict(list) # keep track of which OTUs result in the plot
 	for i,v in enumerate(data['rows']):
 		if report_features:
-			out_data[v[2]].append(v[0].split('.')[7])
+			out_data[v[2]].append(v[0].split('.')[7].replace('.','_')) # string replace retains format New.ReferenceOTUxxx
 		indcl = cls.index(v[2])
 		lab = str(v[2]) if str(v[2]) not in added else ""
 		added.append(str(v[2])) 
@@ -142,7 +142,7 @@ def plot_histo_ver(path,params,data,report_features):
 	out_data = defaultdict(list) # keep track of which OTUs result in the plot
 	for i,v in enumerate(data['rows']):
 		if report_features:
-			out_data[v[2]].append(v[0].split('.')[7])
+			out_data[v[2]].append(v[0].split('.')[7].replace('.','_')) # string replace retains format New.ReferenceOTUxxx
 		indcl = data['cls'].index(v[2])
 		lab = str(v[2]) if str(v[2]) not in added else ""
 		added.append(str(v[2])) 
