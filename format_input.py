@@ -257,7 +257,7 @@ def modify_feature_names(fn):
 	
 	ret2 = []
 	for r in ret:
-		if r[0] in ['0','1','2','3','4','5','6','7','8','9']:
+		if r[0] in ['0','1','2','3','4','5','6','7','8','9','_']:
 			ret2.append("f_"+r)
 		else: ret2.append(r)	
 				
