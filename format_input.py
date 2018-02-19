@@ -103,24 +103,41 @@ def remove_missing(data,roc):
 
 def sort_by_cl(data,n,c,s,u):
     def sort_lines1(a,b):
-            return int(a[c] > b[c])*2-1
+        return int(a[c] > b[c])*2-1
+
     def sort_lines2u(a,b):
-            if a[c] != b[c]: return int(a[c] > b[c])*2-1
+        if a[c] != b[c]:
+            return int(a[c] > b[c])*2-1
+
         return int(a[u] > b[u])*2-1
+
     def sort_lines2s(a,b):
-            if a[c] != b[c]: return int(a[c] > b[c])*2-1
+        if a[c] != b[c]:
+            return int(a[c] > b[c])*2-1
+
         return int(a[s] > b[s])*2-1
+
     def sort_lines3(a,b):
-            if a[c] != b[c]: return int(a[c] > b[c])*2-1
-        if a[s] != b[s]: return int(a[s] > b[s])*2-1
+        if a[c] != b[c]:
+            return int(a[c] > b[c])*2-1
+
+        if a[s] != b[s]:
+            return int(a[s] > b[s])*2-1
+
         return int(a[u] > b[u])*2-1
-        if n == 3: data.sort(sort_lines3)
-        if n == 2:
-      if s is None:
-        data.sort(sort_lines2u)
-      else:
-        data.sort(sort_lines2s)
-        if n == 1: data.sort(sort_lines1)
+
+    if n == 3:
+        data.sort(sort_lines3)
+
+    if n == 2:
+        if s is None:
+            data.sort(sort_lines2u)
+        else:
+            data.sort(sort_lines2s)
+
+    if n == 1:
+        data.sort(sort_lines1)
+
     return data
 
 def group_small_subclasses(cls,min_subcl):
@@ -142,31 +159,31 @@ def group_small_subclasses(cls,min_subcl):
     return cls
 
 def get_class_slices(data):
-        previous_class = data[0][0]
-        previous_subclass = data[0][1]
-        subclass_slices = []
-        class_slices = []
-        last_cl = 0
-        last_subcl = 0
-        class_hierarchy = []
-        subcls = []
-        for i,d in enumerate(data):
-                if d[1] != previous_subclass:
-                        subclass_slices.append((previous_subclass,(last_subcl,i)))
-                        last_subcl = i
-                        subcls.append(previous_subclass)
-                if d[0] != previous_class:
-                        class_slices.append((previous_class,(last_cl,i)))
-                        class_hierarchy.append((previous_class,subcls))
-                        subcls = []
-                        last_cl = i
-                previous_subclass = d[1]
-                previous_class = d[0]
-        subclass_slices.append((previous_subclass,(last_subcl,i+1)))
-        subcls.append(previous_subclass)
-        class_slices.append((previous_class,(last_cl,i+1)))
-        class_hierarchy.append((previous_class,subcls))
-        return dict(class_slices), dict(subclass_slices), dict(class_hierarchy)
+    previous_class = data[0][0]
+    previous_subclass = data[0][1]
+    subclass_slices = []
+    class_slices = []
+    last_cl = 0
+    last_subcl = 0
+    class_hierarchy = []
+    subcls = []
+    for i,d in enumerate(data):
+        if d[1] != previous_subclass:
+            subclass_slices.append((previous_subclass,(last_subcl,i)))
+            last_subcl = i
+            subcls.append(previous_subclass)
+        if d[0] != previous_class:
+            class_slices.append((previous_class,(last_cl,i)))
+            class_hierarchy.append((previous_class,subcls))
+            subcls = []
+            last_cl = i
+        previous_subclass = d[1]
+        previous_class = d[0]
+    subclass_slices.append((previous_subclass,(last_subcl,i+1)))
+    subcls.append(previous_subclass)
+    class_slices.append((previous_class,(last_cl,i+1)))
+    class_hierarchy.append((previous_class,subcls))
+    return dict(class_slices), dict(subclass_slices), dict(class_hierarchy)
 
 def numerical_values(feats,norm):
     mm = []
@@ -243,23 +260,25 @@ def add_missing_levels(ff):
     return ff
 
 
-
 def modify_feature_names(fn):
     ret = fn
 
     for v in [' ',r'\$',r'\@',r'#',r'%',r'\^',r'\&',r'\*',r'\"',r'\'']:
-                ret = [re.sub(v,"",f) for f in ret]
-        for v in ["/",r'\(',r'\)',r'-',r'\+',r'=',r'{',r'}',r'\[',r'\]',
-        r',',r'\.',r';',r':',r'\?',r'\<',r'\>',r'\.',r'\,']:
-                ret = [re.sub(v,"_",f) for f in ret]
-        for v in ["\|"]:
-                ret = [re.sub(v,".",f) for f in ret]
+        ret = [re.sub(v,"",f) for f in ret]
+
+    for v in ["/",r'\(',r'\)',r'-',r'\+',r'=',r'{',r'}',r'\[',r'\]',
+              r',',r'\.',r';',r':',r'\?',r'\<',r'\>',r'\.',r'\,']:
+        ret = [re.sub(v,"_",f) for f in ret]
+
+    for v in ["\|"]:
+        ret = [re.sub(v,".",f) for f in ret]
 
     ret2 = []
     for r in ret:
         if r[0] in ['0','1','2','3','4','5','6','7','8','9','_']:
             ret2.append("f_"+r)
-        else: ret2.append(r)
+        else:
+            ret2.append(r)
 
     return ret2
 
