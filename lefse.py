@@ -147,53 +147,73 @@ def contast_within_classes_or_few_per_class(feats,inds,min_cl,ncl):
     return False
 
 def test_lda_r(cls,feats,cl_sl,boots,fract_sample,lda_th,tol_min,nlogs):
-        fk = feats.keys()
-        means = dict([(k,[]) for k in feats.keys()])
-        feats['class'] = list(cls['class'])
-        clss = list(set(feats['class']))
-        for uu,k in enumerate(fk):
-                if k == 'class': continue
-                ff = [(feats['class'][i],v) for i,v in enumerate(feats[k])]
-                for c in clss:
-                        if len(set([float(v[1]) for v in ff if v[0] == c])) > max(float(feats['class'].count(c))*0.5,4): continue
-                        for i,v in enumerate(feats[k]):
-                                if feats['class'][i] == c:
-                                        feats[k][i] = math.fabs(feats[k][i] + lrand.normalvariate(0.0,max(feats[k][i]*0.05,0.01)))
-        rdict = {}
-        for a,b in feats.items():
-                if a == 'class' or a == 'subclass' or a == 'subject':
-                        rdict[a] = robjects.StrVector(b)
-                else: rdict[a] = robjects.FloatVector(b)
-        robjects.globalenv["d"] = robjects.DataFrame(rdict)
-        lfk = len(feats[fk[0]])
-        rfk = int(float(len(feats[fk[0]]))*fract_sample)
-        f = "class ~ "+fk[0]
-        for k in fk[1:]: f += " + " + k.strip()
-        ncl = len(set(cls['class']))
-        min_cl = int(float(min([cls['class'].count(c) for c in set(cls['class'])]))*fract_sample*fract_sample*0.5)
-        min_cl = max(min_cl,1)
-        pairs = [(a,b) for a in set(cls['class']) for b in set(cls['class']) if a > b]
+    fk = feats.keys()
+    means = dict([(k,[]) for k in feats.keys()])
+    feats['class'] = list(cls['class'])
+    clss = list(set(feats['class']))
+
+    for uu,k in enumerate(fk):
+        if k == 'class':
+            continue
+
+        ff = [(feats['class'][i],v) for i,v in enumerate(feats[k])]
+
+        for c in clss:
+            if len(set([float(v[1]) for v in ff if v[0] == c])) > max(float(feats['class'].count(c))*0.5,4):
+                continue
+
+            for i,v in enumerate(feats[k]):
+                if feats['class'][i] == c:
+                    feats[k][i] = math.fabs(feats[k][i] + lrand.normalvariate(0.0,max(feats[k][i]*0.05,0.01)))
+
+    rdict = {}
+
+    for a,b in feats.items():
+        if a == 'class' or a == 'subclass' or a == 'subject':
+            rdict[a] = robjects.StrVector(b)
+        else:
+            rdict[a] = robjects.FloatVector(b)
+
+    robjects.globalenv["d"] = robjects.DataFrame(rdict)
+    lfk = len(feats[fk[0]])
+    rfk = int(float(len(feats[fk[0]]))*fract_sample)
+    f = "class ~ "+fk[0]
+
+    for k in fk[1:]:
+        f += " + " + k.strip()
+
+    ncl = len(set(cls['class']))
+    min_cl = int(float(min([cls['class'].count(c) for c in set(cls['class'])]))*fract_sample*fract_sample*0.5)
+    min_cl = max(min_cl,1)
+    pairs = [(a,b) for a in set(cls['class']) for b in set(cls['class']) if a > b]
 
     for k in fk:
         for i in range(boots):
             means[k].append([])
-        for i in range(boots):
-                for rtmp in range(1000):
-                        rand_s = [lrand.randint(0,lfk-1) for v in range(rfk)]
-                        if not contast_within_classes_or_few_per_class(feats,rand_s,min_cl,ncl): break
-                rand_s = [r+1 for r in rand_s]
+
+    for i in range(boots):
+        for rtmp in range(1000):
+            rand_s = [lrand.randint(0,lfk-1) for v in range(rfk)]
+            if not contast_within_classes_or_few_per_class(feats,rand_s,min_cl,ncl):
+                break
+
+        rand_s = [r+1 for r in rand_s]
         means[k][i] = []
+
         for p in pairs:
-                robjects.globalenv["rand_s"] = robjects.IntVector(rand_s)
-                    robjects.globalenv["sub_d"] = robjects.r('d[rand_s,]')
-                    z = robjects.r('z <- suppressWarnings(lda(as.formula('+f+'),data=sub_d,tol='+str(tol_min)+'))')
+            robjects.globalenv["rand_s"] = robjects.IntVector(rand_s)
+            robjects.globalenv["sub_d"] = robjects.r('d[rand_s,]')
+            z = robjects.r('z <- suppressWarnings(lda(as.formula('+f+'),data=sub_d,tol='+str(tol_min)+'))')
             robjects.r('w <- z$scaling[,1]')
             robjects.r('w.unit <- w/sqrt(sum(w^2))')
             robjects.r('ss <- sub_d[,-match("class",colnames(sub_d))]')
+
             if 'subclass' in feats:
                 robjects.r('ss <- ss[,-match("subclass",colnames(ss))]')
+
             if 'subject' in feats:
                 robjects.r('ss <- ss[,-match("subject",colnames(ss))]')
+
             robjects.r('xy.matrix <- as.matrix(ss)')
             robjects.r('LD <- xy.matrix%*%w.unit')
             robjects.r('effect.size <- abs(mean(LD[sub_d[,"class"]=="'+p[0]+'"]) - mean(LD[sub_d[,"class"]=="'+p[1]+'"]))')
@@ -202,19 +222,23 @@ def test_lda_r(cls,feats,cl_sl,boots,fract_sample,lda_th,tol_min,nlogs):
             rowns = list(rres.rownames)
             lenc = len(list(rres.colnames))
             coeff = [abs(float(v)) if not math.isnan(float(v)) else 0.0 for v in scal]
-                    res = dict([(pp,[float(ff) for ff in rres.rx(pp,True)] if pp in rowns else [0.0]*lenc ) for pp in [p[0],p[1]]])
+            res = dict([(pp,[float(ff) for ff in rres.rx(pp,True)] if pp in rowns else [0.0]*lenc ) for pp in [p[0],p[1]]])
+
             for j,k in enumerate(fk):
                 gm = abs(res[p[0]][j] - res[p[1]][j])
-                            means[k][i].append((gm+coeff[j])*0.5)
-        res = {}
-        for k in fk:
+                means[k][i].append((gm+coeff[j])*0.5)
+
+    res = {}
+
+    for k in fk:
         m = max([numpy.mean([means[k][kk][p] for kk in range(boots)]) for p in range(len(pairs))])
-                res[k] = math.copysign(1.0,m)*math.log(1.0+math.fabs(m),10)
-        return res,dict([(k,x) for k,x in res.items() if math.fabs(x) > lda_th])
+        res[k] = math.copysign(1.0,m)*math.log(1.0+math.fabs(m),10)
+
+    return res,dict([(k,x) for k,x in res.items() if math.fabs(x) > lda_th])
 
 
 def test_svm(cls,feats,cl_sl,boots,fract_sample,lda_th,tol_min,nsvm):
-    return NULL
+    return None
 """
     fk = feats.keys()
     clss = list(set(cls['class']))
