@@ -67,7 +67,7 @@ def plot_histo_hor(path,params,data,bcl,report_features):
     ht = head + tail
     ints = max(len(pos)*0.2,1.5)
     fig = plt.figure(figsize=(params['width'], ints + ht), edgecolor=params['back_color'],facecolor=params['back_color'])
-    ax = fig.add_subplot(111,frame_on=False,axis_bgcolor=params['back_color'])
+    ax = fig.add_subplot(111,frame_on=False,facecolor=params['back_color'])
     ls, rs = params['ls'], 1.0-params['rs']
     plt.subplots_adjust(left=ls,right=rs,top=1-head*(1.0-ints/(ints+ht)), bottom=tail*(1.0-ints/(ints+ht)))
 
@@ -136,7 +136,7 @@ def plot_histo_ver(path,params,data,report_features):
     if params['n_scl'] < 0: nam = [d[0] for d in data['rows']]
     else: nam = [d[0].split(".")[-min(d[0].count("."),params['n_scl'])] for d in data['rows']]
     fig = plt.figure(edgecolor=params['back_color'],facecolor=params['back_color'],figsize=(params['width'], params['height'])) 
-    ax = fig.add_subplot(111,axis_bgcolor=params['back_color'])
+    ax = fig.add_subplot(111,facecolor=params['back_color'])
     plt.subplots_adjust(top=0.9, left=params['ls'], right=params['rs'], bottom=0.3) 
     fig.canvas.set_window_title('LDA results')   
     l_align = {'horizontalalignment':'left', 'verticalalignment':'baseline'}
