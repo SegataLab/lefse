@@ -291,7 +291,7 @@ def draw_tree(out_file,tree,params):
 	if clade_sep_err: print 'clade_sep parameter too large, lowered to',params['clade_sep']
 
 	fig = plt.figure(edgecolor=params['back_color'],facecolor=params['back_color'])
-	ax = fig.add_subplot(111, polar=True, frame_on=False, axis_bgcolor=params['back_color'] )
+	ax = fig.add_subplot(111, polar=True, frame_on=False, facecolor=params['back_color'] )
 	plt.subplots_adjust(right=1.0-params['r_prop'],left=params['l_prop']) 	
 	ax.grid(False)
 	xticks([])

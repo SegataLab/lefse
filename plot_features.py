@@ -57,7 +57,7 @@ def read_data(file_data,file_feats,params):
 
 def plot(name,k_n,feat,params):
 	fig = plt.figure(figsize=(params['width'], params['height']),edgecolor=params['fore_color'],facecolor=params['back_color'])
-	ax = fig.add_subplot(111,axis_bgcolor=params['back_color']) 
+	ax = fig.add_subplot(111,facecolor=params['back_color']) 
 	subplots_adjust(bottom=0.15)
 
 	max_m = 0.0
