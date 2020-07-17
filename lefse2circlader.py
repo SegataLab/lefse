@@ -1,6 +1,4 @@
-#!/usr/bin/env python
-
-from __future__ import with_statement
+#!/usr/bin/env python3
 
 import sys
 import os
