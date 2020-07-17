@@ -17,7 +17,7 @@ def init():
 
 def get_class_means(class_sl,feats):
     means = {}
-    clk = class_sl.keys()
+    clk = list(class_sl.keys())
     for fk,f in feats.items():
         means[fk] = [numpy.mean((f[class_sl[k][0]:class_sl[k][1]])) for k in clk]
     return clk,means
@@ -120,7 +120,7 @@ def test_rep_wilcoxon_r(sl,cl_hie,feats,th,multiclass_strat,mul_cor,fn,min_c,com
         if not diff and multiclass_strat: return False
         if diff and not multiclass_strat: all_diff.append(pair)
     if not multiclass_strat:
-        tot_k = len(cl_hie.keys())
+        tot_k = len(list(cl_hie.keys()))
         for k in cl_hie.keys():
             nk = 0
             for a in all_diff:
@@ -132,7 +132,7 @@ def test_rep_wilcoxon_r(sl,cl_hie,feats,th,multiclass_strat,mul_cor,fn,min_c,com
 
 
 def contast_within_classes_or_few_per_class(feats,inds,min_cl,ncl):
-    ff = zip(*[v for n,v in feats.items() if n != 'class'])
+    ff = list(zip(*[v for n,v in feats.items() if n != 'class']))
     cols = [ff[i] for i in inds]
     cls = [feats['class'][i] for i in inds]
     if len(set(cls)) < ncl:
@@ -147,7 +147,7 @@ def contast_within_classes_or_few_per_class(feats,inds,min_cl,ncl):
     return False
 
 def test_lda_r(cls,feats,cl_sl,boots,fract_sample,lda_th,tol_min,nlogs):
-    fk = feats.keys()
+    fk = list(feats.keys())
     means = dict([(k,[]) for k in feats.keys()])
     feats['class'] = list(cls['class'])
     clss = list(set(feats['class']))
