@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import sys
 
@@ -62,7 +62,7 @@ def qiime2lefse(  fin, fmd, fout, all_md, sel_md ):
             mdd = dict(zip(mdf,l[1:]))
             md[l[0]] = mdd
 
-    selected_md = md.values()[0].keys() if md else []
+    selected_md = list(md.values())[0].keys() if md else []
 
     if not all_md:
         selected_md = [s for s in sel_md if s]
