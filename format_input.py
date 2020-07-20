@@ -437,11 +437,19 @@ if  __name__ == '__main__':
     cls = {}
 
     cls_i = [('class',params['class']-1)]
-    if params['subclass'] > 0: cls_i.append(('subclass',params['subclass']-1))
-    if params['subject'] > 0: cls_i.append(('subject',params['subject']-1))
+    if params['subclass'] is not None and params['subclass'] > 0:
+        cls_i.append(('subclass',params['subclass']-1))
+
+    if params['subject'] is not None and params['subject'] > 0:
+        cls_i.append(('subject',params['subject']-1))
+
     cls_i.sort(key = functools.cmp_to_key(lambda x,y: -(x[1] > y[1]) - (x[1] < y[1])))
-    for v in cls_i: cls[v[0]] = data.pop(v[1])[1:]
-    if not params['subclass'] > 0: cls['subclass'] = [str(cl)+"_subcl" for cl in cls['class']]
+
+    for v in cls_i: 
+        cls[v[0]] = data.pop(v[1])[1:]
+    
+    if params['subject'] is not None and params['subclass'] > 0: 
+        cls['subclass'] = [str(cl)+"_subcl" for cl in cls['class']]
 
     cls['subclass'] = rename_same_subcl(cls['class'],cls['subclass'])
 #   if 'subclass' in cls.keys(): cls = group_small_subclasses(cls,params['subcl_min_card'])
