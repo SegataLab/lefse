@@ -35,8 +35,8 @@ __status__ = "Development"
 import csv
 import sys
 import blist
-from CClade import CClade
-from ConstantsBreadCrumbs import ConstantsBreadCrumbs
+from .CClade import CClade
+from .ConstantsBreadCrumbs import ConstantsBreadCrumbs
 import copy
 from datetime import date
 import numpy as np
@@ -44,7 +44,7 @@ import os
 import re
 import scipy.stats
 import string
-from ValidateData import ValidateData
+from .ValidateData import ValidateData
 
 
 #*************************************************************
@@ -247,7 +247,7 @@ class AbundanceTable:
         self._fIsNormalized = self._fIsSummed = None
         #If contents is not a false then set contents to appropriate objects
         # Checking to see if the data is normalized, summed and if we need to run a filter on it.
-        if ( self._npaFeatureAbundance != None ) and self._dictTableMetadata:
+        if len(self._npaFeatureAbundance) and self._dictTableMetadata:
             self._iOriginalFeatureCount = self._npaFeatureAbundance.shape[0]
             self._iOriginalSampleCount = len(self.funcGetSampleNames())
         
@@ -882,7 +882,7 @@ class AbundanceTable:
                                 A list of string names or empty list on error as well as no underlying table.
         """
 
-        return self._npaFeatureAbundance.dtype.names[1:] if ( self._npaFeatureAbundance != None ) else []
+        return self._npaFeatureAbundance.dtype.names[1:] if ( len(self._npaFeatureAbundance) > 1 ) else []
 
     #Happy Path Tested
     def funcGetIDMetadataName(self):
@@ -893,7 +893,7 @@ class AbundanceTable:
                       Returns none on error.
         """
 
-        return self._npaFeatureAbundance.dtype.names[0] if ( self._npaFeatureAbundance != None ) else None
+        return self._npaFeatureAbundance.dtype.names[0] if ( len(self._npaFeatureAbundance) > 1  ) else None
 
     #Happy path tested
     def funcGetAbundanceCopy(self):
@@ -1214,7 +1214,7 @@ class AbundanceTable:
         dictCounts = dict()
         for strTaxaName in lsNames:
             #Split into the elements of the clades
-            lsClades = list(filter(None,strTaxaName.split(cNameDelimiter)))
+            lsClades = list(filter(None,strTaxaName.decode().split(cNameDelimiter)))
             #Count clade levels
             iCladeLength = len(lsClades)
 
@@ -2254,7 +2254,7 @@ class AbundanceTable:
         BiomCommonArea = dict()        
         dBugNames = list()            #Bug Names Table
         dRowsMetadata = None        #Initialize the np.array of the Rows metadata
-        BiomElements  =  BiomTable.getBiomFormatObject('')    
+        BiomElements  =  json.loads(BiomTable.to_json(''))
         for BiomKey, BiomValue in BiomElements.items():
         #****************************************************
         #*     Checking the different keys:  format,        *
@@ -2292,7 +2292,7 @@ class AbundanceTable:
         #*******************************************
     
         BiomTaxDataWork = list()            #Initlialize TaxData
-        BiomObservations = BiomTable.iterObservations(conv_to_np=True)        #Invoke biom method to fetch data from the biom file
+        BiomObservations = BiomTable.iter(axis='observation')        #Invoke biom method to fetch data from the biom file
         for BiomObservationData in BiomObservations:
             sBugName = str( BiomObservationData[1])
             BiomTaxDataEntry = list()
@@ -2344,20 +2344,20 @@ class AbundanceTable:
                         BiomMetadata[ConstantsBreadCrumbs.c_ID] = list() #Initialize a list
                         for indx in range(0, lenBiomValue):            #And post the values
                             BiomMetadata[ConstantsBreadCrumbs.c_ID].append(None)
-                    BiomMetadata[ConstantsBreadCrumbs.c_ID][cntMetadata] = value.encode(ConstantsBreadCrumbs.c_ascii,ConstantsBreadCrumbs.c_ignore)
+                    BiomMetadata[ConstantsBreadCrumbs.c_ID][cntMetadata] = value#.encode(ConstantsBreadCrumbs.c_ascii,ConstantsBreadCrumbs.c_ignore)
  
                  if  key == ConstantsBreadCrumbs.c_metadata_lowercase:        #If key = metadata
                     if  not value is None:                    #And value is not empty
                         MetadataDict = value                #Initialize a dictionary and post the values
                         for MDkey, MDvalue in MetadataDict.items():
-                            if type(MDkey) == str :
-                                MDkeyAscii = MDkey.encode(ConstantsBreadCrumbs.c_ascii,ConstantsBreadCrumbs.c_ignore)
-                            else:
-                                MDkeyAscii = MDkey 
-                            if type(MDvalue) == str:
-                                MDvalueAscii = MDvalue.encode(ConstantsBreadCrumbs.c_ascii,ConstantsBreadCrumbs.c_ignore)
-                            else:
-                                MDvalueAscii = MDvalue 
+                            # if type(MDkey) == str :
+                            #     MDkeyAscii = MDkey.encode(ConstantsBreadCrumbs.c_ascii,ConstantsBreadCrumbs.c_ignore)
+                            # else:
+                            MDkeyAscii = MDkey 
+                            # if type(MDvalue) == str:
+                            #     MDvalueAscii = MDvalue.encode(ConstantsBreadCrumbs.c_ascii,ConstantsBreadCrumbs.c_ignore)
+                            # else:
+                            MDvalueAscii = MDvalue 
                             
                             if  len(MDkeyAscii) > 0:        #Search for the last metadata
                                     if not strIDMetadata:
@@ -2388,7 +2388,7 @@ class AbundanceTable:
 
         for a in BiomMetadata[ConstantsBreadCrumbs.c_ID]:
                 BiomDtypeEntry = list()
-                FirstValue =  a.encode(ConstantsBreadCrumbs.c_ascii,ConstantsBreadCrumbs.c_ignore)
+                FirstValue =  a#.decode(ConstantsBreadCrumbs.c_ascii,ConstantsBreadCrumbs.c_ignore)
                 SecondValue = ConstantsBreadCrumbs.c_f4 
                 BiomDtypeEntry.append(FirstValue)
                 BiomDtypeEntry.append(SecondValue)
