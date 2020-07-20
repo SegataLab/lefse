@@ -448,7 +448,7 @@ if  __name__ == '__main__':
     for v in cls_i: 
         cls[v[0]] = data.pop(v[1])[1:]
     
-    if params['subject'] is not None and params['subclass'] > 0: 
+    if params['subclass'] is None:
         cls['subclass'] = [str(cl)+"_subcl" for cl in cls['class']]
 
     cls['subclass'] = rename_same_subcl(cls['class'],cls['subclass'])
