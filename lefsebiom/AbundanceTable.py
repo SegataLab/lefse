@@ -1214,7 +1214,7 @@ class AbundanceTable:
         dictCounts = dict()
         for strTaxaName in lsNames:
             #Split into the elements of the clades
-            lsClades = list(filter(None,strTaxaName.decode().split(cNameDelimiter)))
+            lsClades = list(filter(None,strTaxaName.split(cNameDelimiter)))
             #Count clade levels
             iCladeLength = len(lsClades)
 
@@ -2245,7 +2245,8 @@ class AbundanceTable:
         #* Build the metadata                      *
         #*******************************************
         try:
-            BiomTable = parse_biom_table(open(xInputFile,'U') if isinstance(xInputFile, str) else xInputFile)    #Import the biom file
+
+            BiomTable = load_table(xInputFile) if isinstance(xInputFile, str) else xInputFile    #Import the biom file
         except:
             print("Failure decoding biom file - please check your input biom file and rerun")
             BiomCommonArea = None
@@ -2294,12 +2295,10 @@ class AbundanceTable:
         BiomTaxDataWork = list()            #Initlialize TaxData
         BiomObservations = BiomTable.iter(axis='observation')        #Invoke biom method to fetch data from the biom file
         for BiomObservationData in BiomObservations:
-            sBugName = str( BiomObservationData[1])
-            BiomTaxDataEntry = list()
-            BiomTaxDataEntry.append(sBugName)
+            sBugName = BiomObservationData[1]
+            BiomTaxDataEntry = [sBugName]
             BiomObservationsValues = BiomObservationData[0]
-            for BiomDataValue in BiomObservationsValues:
-                BiomTaxDataEntry.append(BiomDataValue)
+            BiomTaxDataEntry.extend(BiomObservationsValues.tolist())
             BiomTaxDataWork.append(tuple(BiomTaxDataEntry))    
     
         BiomCommonArea[ConstantsBreadCrumbs.c_BiomTaxData] = np.array(BiomTaxDataWork,dtype=np.dtype(BiomCommonArea[ConstantsBreadCrumbs.c_Dtype]))
@@ -2341,33 +2340,23 @@ class AbundanceTable:
                  if key == ConstantsBreadCrumbs.c_id_lowercase:        #If id - process it
                     strIDMetadata = ConstantsBreadCrumbs.c_ID
                     if  ConstantsBreadCrumbs.c_ID  not in BiomMetadata:    #If ID  not in the common area - initalize it
-                        BiomMetadata[ConstantsBreadCrumbs.c_ID] = list() #Initialize a list
-                        for indx in range(0, lenBiomValue):            #And post the values
-                            BiomMetadata[ConstantsBreadCrumbs.c_ID].append(None)
-                    BiomMetadata[ConstantsBreadCrumbs.c_ID][cntMetadata] = value#.encode(ConstantsBreadCrumbs.c_ascii,ConstantsBreadCrumbs.c_ignore)
+                        BiomMetadata[ConstantsBreadCrumbs.c_ID] = [None] * lenBiomValue #Initialize a list
+                    BiomMetadata[ConstantsBreadCrumbs.c_ID][cntMetadata] = value
  
                  if  key == ConstantsBreadCrumbs.c_metadata_lowercase:        #If key = metadata
                     if  not value is None:                    #And value is not empty
                         MetadataDict = value                #Initialize a dictionary and post the values
                         for MDkey, MDvalue in MetadataDict.items():
-                            # if type(MDkey) == str :
-                            #     MDkeyAscii = MDkey.encode(ConstantsBreadCrumbs.c_ascii,ConstantsBreadCrumbs.c_ignore)
-                            # else:
-                            MDkeyAscii = MDkey 
-                            # if type(MDvalue) == str:
-                            #     MDvalueAscii = MDvalue.encode(ConstantsBreadCrumbs.c_ascii,ConstantsBreadCrumbs.c_ignore)
-                            # else:
-                            MDvalueAscii = MDvalue 
+                            MDkey = MDkey 
+                            MDvalue = MDvalue 
                             
-                            if  len(MDkeyAscii) > 0:        #Search for the last metadata
+                            if  len(MDkey) > 0:        #Search for the last metadata
                                     if not strIDMetadata:
-                                        strIDMetadata = MDkeyAscii
-                                    BiomCommonArea[ConstantsBreadCrumbs.c_sLastMetadata] =  MDkeyAscii #Set the last Metadata
-                            if  MDkeyAscii  not in BiomMetadata:
-                                BiomMetadata[MDkeyAscii] = list()
-                                for indx in range(0, lenBiomValue):
-                                    BiomMetadata[MDkeyAscii].append(None)
-                            BiomMetadata[MDkeyAscii][cntMetadata] = MDvalueAscii 
+                                        strIDMetadata = MDkey
+                                    BiomCommonArea[ConstantsBreadCrumbs.c_sLastMetadata] =  MDkey #Set the last Metadata
+                            if  MDkey  not in BiomMetadata:
+                                BiomMetadata[MDkey] = [None] * lenBiomValue
+                            BiomMetadata[MDkey][cntMetadata] = MDvalue 
  
 
         BiomCommonArea[ConstantsBreadCrumbs.c_Metadata] = BiomMetadata
@@ -2379,20 +2368,12 @@ class AbundanceTable:
 
         BiomDtype = list()
         iMaxIdLen+=10 #Increase it by 10
-        BiomDtypeEntry = list()
         FirstValue = ConstantsBreadCrumbs.c_ID
-        SecondValue = "a" + str(iMaxIdLen)
-        BiomDtypeEntry.append(FirstValue)
-        BiomDtypeEntry.append(SecondValue)
-        BiomDtype.append(tuple(BiomDtypeEntry))
+        SecondValue = "U" + str(iMaxIdLen)
+        BiomDtypeEntry = tuple([FirstValue, SecondValue])
+        BiomDtype.append(BiomDtypeEntry)
 
-        for a in BiomMetadata[ConstantsBreadCrumbs.c_ID]:
-                BiomDtypeEntry = list()
-                FirstValue =  a#.decode(ConstantsBreadCrumbs.c_ascii,ConstantsBreadCrumbs.c_ignore)
-                SecondValue = ConstantsBreadCrumbs.c_f4 
-                BiomDtypeEntry.append(FirstValue)
-                BiomDtypeEntry.append(SecondValue)
-                BiomDtype.append(tuple(BiomDtypeEntry))
+        BiomDtype.extend([tuple( [a, ConstantsBreadCrumbs.c_f4] ) for a in BiomMetadata[ConstantsBreadCrumbs.c_ID]])
                 
         BiomCommonArea[ConstantsBreadCrumbs.c_Dtype] = BiomDtype
         return BiomCommonArea

@@ -200,7 +200,7 @@ def numerical_values(feats,norm):
     if hie and sum(mul) == 0:
         mul = []
         for i in range(len(list(feats.values())[0])):
-            mul.append(sum(tr[i]))
+            mul.append(sum(tr[i])) 
     for i,m in enumerate(mul):
         if m == 0: mul[i] = 0.0
         else: mul[i] = float(norm) / m
@@ -264,7 +264,7 @@ def modify_feature_names(fn):
     ret = fn
 
     for v in [' ',r'\$',r'\@',r'#',r'%',r'\^',r'\&',r'\*',r'\"',r'\'']:
-        ret = [re.sub(v,"",f.decode()) if type(f) != str else re.sub(v,"",f) for f in ret]
+        ret = [re.sub(v,"",f) for f in ret]
 
     for v in ["/",r'\(',r'\)',r'-',r'\+',r'=',r'{',r'}',r'\[',r'\]',
               r',',r'\.',r';',r':',r'\?',r'\<',r'\>',r'\.',r'\,']:
@@ -322,15 +322,12 @@ def biom_processing(inp_file):
     ResolvedData = list()       #This is the Resolved data that will be returned
     IDMetadataName  = CommonArea['abndData'].funcGetIDMetadataName()   #* ID Metadataname
     IDMetadata = [CommonArea['abndData'].funcGetIDMetadataName()]  #* The first Row
-    for IDMetadataEntry in CommonArea['abndData'].funcGetMetadataCopy()[IDMetadataName]:  #* Loop on all the metadata values
-        IDMetadata.append(IDMetadataEntry)
+    IDMetadata.extend([IDMetadataEntry for IDMetadataEntry in CommonArea['abndData'].funcGetMetadataCopy()[IDMetadataName]]) #* Loop on all the metadata values
+
     ResolvedData.append(IDMetadata)                 #Add the IDMetadata with all its values to the resolved area
     for key, value in  CommonArea['abndData'].funcGetMetadataCopy().items():
         if  key  != IDMetadataName:
-            MetadataEntry = list()      #*  Set it up
-            MetadataEntry.append(key)   #*  And post it to the area
-            for x in value:
-                MetadataEntry.append(x)     #* Append the metadata value name
+            MetadataEntry = [key] + value     #*  Set it up
             ResolvedData.append(MetadataEntry)
     for AbundanceDataEntry in    CommonArea['abndData'].funcGetAbundanceCopy():         #* The Abundance Data
         lstAbundanceDataEntry = list(AbundanceDataEntry)    #Convert tuple to list
@@ -369,11 +366,11 @@ def  check_params_for_biom_case(params, CommonArea):
 
         if not params['biom_class'] is None and not params['biom_subclass'] is None:                #Check if the User passed a valid class and subclass
             if  params['biom_class'] in CommonArea['MetadataNames']:
-                params['class'] =  CommonArea['MetadataNames'].index(params['biom_class']) +1   #* Set up the index for that metadata
+                params['class'] =  CommonArea['MetadataNames'].index(params['biom_class'])+1  #* Set up the index for that metadata
             else:
                 FlagError = True
             if  params['biom_subclass'] in  CommonArea['MetadataNames']:
-                params['subclass'] =  CommonArea['MetadataNames'].index(params['biom_subclass']) +1 #* Set up the index for that metadata
+                params['subclass'] =  CommonArea['MetadataNames'].index(params['biom_subclass'])+1 #* Set up the index for that metadata
             else:
                 FlagError = True
         if FlagError == True:       #* If the User passed an invalid class
@@ -443,7 +440,7 @@ if  __name__ == '__main__':
     if params['subject'] is not None and params['subject'] > 0:
         cls_i.append(('subject',params['subject']-1))
 
-    cls_i.sort(key = functools.cmp_to_key(lambda x,y: -(x[1] > y[1]) - (x[1] < y[1])))
+    cls_i.sort(key = functools.cmp_to_key(lambda x,y: -((x[1] > y[1]) - (x[1] < y[1]))))
 
     for v in cls_i: 
         cls[v[0]] = data.pop(v[1])[1:]
@@ -453,7 +450,7 @@ if  __name__ == '__main__':
 
     cls['subclass'] = rename_same_subcl(cls['class'],cls['subclass'])
 #   if 'subclass' in cls.keys(): cls = group_small_subclasses(cls,params['subcl_min_card'])
-    class_sl,subclass_sl,class_hierarchy = get_class_slices(list(zip(*cls.values())))
+    class_sl,subclass_sl,class_hierarchy = get_class_slices(list(zip(cls['class'], cls['subclass'], cls['subject'])))
 
     feats = dict([(d[0],d[1:]) for d in data])
 
