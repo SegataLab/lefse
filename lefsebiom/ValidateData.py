@@ -449,7 +449,7 @@ class ValidateData:
 
         #Check elements
         listSize = len(parameterValue)
-        for i in xrange(0,listSize):
+        for i in range(0,listSize):
             if(not ValidateData.funcIsValidNumeric(parameterValue[i])):
                 return False
         return True
@@ -472,7 +472,7 @@ class ValidateData:
 
         #Check elements
         listSize = len(parameterValue)
-        for i in xrange(0,listSize):
+        for i in range(0,listSize):
             if(not ValidateData.funcIsValidString(parameterValue[i])):
                 return False
         return True
@@ -520,7 +520,7 @@ class ValidateData:
             return False
 
         #Check key elements
-        keyList = parameterValue.keys()
+        keyList = list(parameterValue.keys())
         keyListSize = len(keyList)
         for i in range(0,keyListSize):
             if keyList[i] == None:
@@ -530,7 +530,7 @@ class ValidateData:
                     return False
 
         #Check key elements
-        itemList = parameterValue.values()
+        itemList = list(parameterValue.values())
         itemListSize = len(itemList)
 
         for i in range(0,itemListSize):

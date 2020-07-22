@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import sys,os,argparse,pickle,re,numpy
 
-
+import functools
 
 
 #***************************************************************************************************************
@@ -55,7 +55,7 @@ def read_input_file(inp_file, CommonArea):
         return CommonArea
 
 def transpose(data):
-    return zip(*data)
+    return list(zip(*data))
 
 def read_params(args):
     parser = argparse.ArgumentParser(description='LEfSe formatting modules')
@@ -127,16 +127,16 @@ def sort_by_cl(data,n,c,s,u):
         return int(a[u] > b[u])*2-1
 
     if n == 3:
-        data.sort(sort_lines3)
+        data.sort(key = functools.cmp_to_key(lambda a,b: sort_lines3(a,b)))
 
     if n == 2:
         if s is None:
-            data.sort(sort_lines2u)
+            data.sort(key = functools.cmp_to_key(lambda a,b: sort_lines2u(a,b)))
         else:
-            data.sort(sort_lines2s)
+            data.sort(key = functools.cmp_to_key(lambda a,b: sort_lines2s(a,b)))
 
     if n == 1:
-        data.sort(sort_lines1)
+        data.sort(key = functools.cmp_to_key(lambda a,b: sort_lines1(a,b)))
 
     return data
 
@@ -190,17 +190,17 @@ def numerical_values(feats,norm):
     for k,v in feats.items():
         feats[k] = [float(val) for val in v]
     if norm < 0.0: return feats
-    tr = zip(*(feats.values()))
+    tr = list(zip(*(list(feats.values()))))
     mul = []
-    fk = feats.keys()
+    fk = list(feats.keys())
     hie = True if sum([k.count(".") for k in fk]) > len(fk) else False
-    for i in range(len(feats.values()[0])):
+    for i in range(len(list(feats.values())[0])):
         if hie: mul.append(sum([t for j,t in enumerate(tr[i]) if fk[j].count(".") < 1 ]))
         else: mul.append(sum(tr[i]))
     if hie and sum(mul) == 0:
         mul = []
-        for i in range(len(feats.values()[0])):
-            mul.append(sum(tr[i]))
+        for i in range(len(list(feats.values())[0])):
+            mul.append(sum(tr[i])) 
     for i,m in enumerate(mul):
         if m == 0: mul[i] = 0.0
         else: mul[i] = float(norm) / m
@@ -322,15 +322,12 @@ def biom_processing(inp_file):
     ResolvedData = list()       #This is the Resolved data that will be returned
     IDMetadataName  = CommonArea['abndData'].funcGetIDMetadataName()   #* ID Metadataname
     IDMetadata = [CommonArea['abndData'].funcGetIDMetadataName()]  #* The first Row
-    for IDMetadataEntry in CommonArea['abndData'].funcGetMetadataCopy()[IDMetadataName]:  #* Loop on all the metadata values
-        IDMetadata.append(IDMetadataEntry)
+    IDMetadata.extend([IDMetadataEntry for IDMetadataEntry in CommonArea['abndData'].funcGetMetadataCopy()[IDMetadataName]]) #* Loop on all the metadata values
+
     ResolvedData.append(IDMetadata)                 #Add the IDMetadata with all its values to the resolved area
-    for key, value in  CommonArea['abndData'].funcGetMetadataCopy().iteritems():
+    for key, value in  CommonArea['abndData'].funcGetMetadataCopy().items():
         if  key  != IDMetadataName:
-            MetadataEntry = list()      #*  Set it up
-            MetadataEntry.append(key)   #*  And post it to the area
-            for x in value:
-                MetadataEntry.append(x)     #* Append the metadata value name
+            MetadataEntry = [key] + value     #*  Set it up
             ResolvedData.append(MetadataEntry)
     for AbundanceDataEntry in    CommonArea['abndData'].funcGetAbundanceCopy():         #* The Abundance Data
         lstAbundanceDataEntry = list(AbundanceDataEntry)    #Convert tuple to list
@@ -369,15 +366,15 @@ def  check_params_for_biom_case(params, CommonArea):
 
         if not params['biom_class'] is None and not params['biom_subclass'] is None:                #Check if the User passed a valid class and subclass
             if  params['biom_class'] in CommonArea['MetadataNames']:
-                params['class'] =  CommonArea['MetadataNames'].index(params['biom_class']) +1   #* Set up the index for that metadata
+                params['class'] =  CommonArea['MetadataNames'].index(params['biom_class'])+1  #* Set up the index for that metadata
             else:
                 FlagError = True
             if  params['biom_subclass'] in  CommonArea['MetadataNames']:
-                params['subclass'] =  CommonArea['MetadataNames'].index(params['biom_subclass']) +1 #* Set up the index for that metadata
+                params['subclass'] =  CommonArea['MetadataNames'].index(params['biom_subclass'])+1 #* Set up the index for that metadata
             else:
                 FlagError = True
         if FlagError == True:       #* If the User passed an invalid class
-            print "**Invalid biom class or subclass passed - Using defaults: First metadata=class, Second Metadata=subclass\n"
+            print("**Invalid biom class or subclass passed - Using defaults: First metadata=class, Second Metadata=subclass\n")
             params['class'] =  2
             params['subclass'] =  3
     return params
@@ -422,30 +419,38 @@ if  __name__ == '__main__':
     if not params['subclass'] is None: ncl += 1
     if not params['subject'] is None: ncl += 1
 
-    first_line = zip(*data)[0]
+    first_line = list(zip(*data))[0]
 
     first_line = modify_feature_names(list(first_line))
 
-    data = zip( first_line,
-            *sort_by_cl(zip(*data)[1:],
+    data = list(zip( first_line,
+            *sort_by_cl(list(zip(*data))[1:],
               ncl,
               params['class']-1,
               params['subclass']-1 if not params['subclass'] is None else None,
-              params['subject']-1 if not params['subject'] is None else None))
+              params['subject']-1 if not params['subject'] is None else None)))
 #   data.insert(0,first_line)
 #   data = remove_missing(data,params['missing_p'])
     cls = {}
 
     cls_i = [('class',params['class']-1)]
-    if params['subclass'] > 0: cls_i.append(('subclass',params['subclass']-1))
-    if params['subject'] > 0: cls_i.append(('subject',params['subject']-1))
-    cls_i.sort(lambda x, y: -cmp(x[1],y[1]))
-    for v in cls_i: cls[v[0]] = data.pop(v[1])[1:]
-    if not params['subclass'] > 0: cls['subclass'] = [str(cl)+"_subcl" for cl in cls['class']]
+    if params['subclass'] is not None and params['subclass'] > 0:
+        cls_i.append(('subclass',params['subclass']-1))
+
+    if params['subject'] is not None and params['subject'] > 0:
+        cls_i.append(('subject',params['subject']-1))
+
+    cls_i.sort(key = functools.cmp_to_key(lambda x,y: -((x[1] > y[1]) - (x[1] < y[1]))))
+
+    for v in cls_i: 
+        cls[v[0]] = data.pop(v[1])[1:]
+    
+    if params['subclass'] is None:
+        cls['subclass'] = [str(cl)+"_subcl" for cl in cls['class']]
 
     cls['subclass'] = rename_same_subcl(cls['class'],cls['subclass'])
 #   if 'subclass' in cls.keys(): cls = group_small_subclasses(cls,params['subcl_min_card'])
-    class_sl,subclass_sl,class_hierarchy = get_class_slices(zip(*cls.values()))
+    class_sl,subclass_sl,class_hierarchy = get_class_slices(list(zip(cls['class'], cls['subclass'], cls['subject'])))
 
     feats = dict([(d[0],d[1:]) for d in data])
 
