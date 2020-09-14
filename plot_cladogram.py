@@ -103,7 +103,7 @@ def read_data(input_file,params):
     all_names = [lin[0] for lin in rows]
     to_add = []
 
-    abundances = [float(v) for v in list(zip(*rows))[1] if v >= 0.0]
+    abundances = [float(v) for v in list(zip(*rows))[1] if float(v) >= 0.0]
     tree = {}
     tree['classes'] = list(set([v[2] for v in rows if len(v)>2]))
     tree['classes'].sort()
