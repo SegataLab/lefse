@@ -35,7 +35,7 @@ def read_params(args):
     parser.add_argument('-f',dest="f_boots", metavar='float', type=float, default=0.67,
                 help="set the subsampling fraction value for each bootstrap iteration (default 0.66666)")
     parser.add_argument('-s',dest="strict", choices=[0,1,2], type=int, default=0,
-                help="set the multiple testing correction options. 0 no correction (more strict, default), 1 correction for independent comparisons, 2 correction for independent comparison")
+                help="set the multiple testing correction options. 0 no correction (more strict, default), 1 correction for independent comparisons, 2 correction for dependent comparison")
 #       parser.add_argument('-m',dest="m_boots", type=int, default=5,
 #               help="minimum cardinality of classes in each bootstrapping iteration (default 5)")
     parser.add_argument('--min_c',dest="min_c", metavar='int', type=int, default=10,
