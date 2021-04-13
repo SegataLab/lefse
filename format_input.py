@@ -75,7 +75,7 @@ def read_params(args):
     parser.add_argument('-u',dest="subject", metavar="[1..n_feats]", type=int, default=None,
         help="set which feature use as subject (default -1 meaning no subject)")
     parser.add_argument('-m',dest="missing_p", choices=["f","s"], type=str, default="d",
-        help="set the policy to adopt with missin values: f removes the features with missing values, s removes samples with missing values (default f)")
+        help="set the policy to adopt with missing values: f removes the features with missing values, s removes samples with missing values (default f)")
     parser.add_argument('-n',dest="subcl_min_card", metavar="int", type=int, default=10,
         help="set the minimum cardinality of each subclass (subclasses with low cardinalities will be grouped together, if the cardinality is still low, no pairwise comparison will be performed with them)")
 
