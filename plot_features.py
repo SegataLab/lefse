@@ -6,6 +6,8 @@ from pylab import *
 from lefse import *
 import random as rand
 
+matplotlib.rcParams['pdf.fonttype'] = 42 
+
 colors = ['r','g','b','m','c']
 
 def read_params(args):
@@ -23,6 +25,7 @@ def read_params(args):
 	parser.add_argument('--subcl_mean',dest="subcl_mean", type=str, choices=["y","n"], default="y")
 	parser.add_argument('--subcl_median',dest="subcl_median", type=str, choices=["y","n"], default="y")
 	parser.add_argument('--font_size',dest="font_size", type=str, default="10")
+	parser.add_argument('--customized_colors',dest="customized_colors", type=str, default="",help="Accept a list of colors in format like <red,blue,yellow>")
 	parser.add_argument('-n',dest="unused", metavar="flt", type=float, default=-1.0,help="unused")
 	parser.add_argument('--format', dest="format", default="png", choices=["png","pdf","svg"], type=str, help="the format for the output file")
 	parser.add_argument('-f', dest="f", default="diff", choices=["all","diff","one"], type=str, help="wheter to plot all features (all), only those differentially abundant according to LEfSe or only one (the one given with --feature_name) ")
@@ -91,6 +94,7 @@ def plot(name,k_n,feat,params):
 			pos = arange(fr,to)
 			max_x = to
 			col = colors[j%len(colors)]
+			#print(col)
 			vv = [v1/norm for v1 in val]
 			median = numpy.median(vv)
 			mean = numpy.mean(vv)
@@ -142,6 +146,7 @@ if __name__ == '__main__':
 	params['fore_color'] = 'w' if params['back_color'] == 'k' else 'k'
 	features = read_data(params['input_file_1'],params['input_file_2'],params)
 	if params['archive'] == "zip": file = zipfile.ZipFile(params['output_file'], "w")
+	if params['customized_colors']: colors = [i.strip() for i in params['customized_colors'].split(',')] 
 	for k,f in features.items():
 		print("Exporting ", k)
 		if params['archive'] == "zip":

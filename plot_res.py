@@ -6,6 +6,8 @@ matplotlib.use('Agg')
 from pylab import *
 from collections import defaultdict
 
+matplotlib.rcParams['pdf.fonttype'] = 42 
+
 from lefse import *
 import argparse
 
@@ -17,6 +19,7 @@ def read_params(args):
     parser.add_argument('output_file', metavar='OUTPUT_FILE', type=str, help="the file for the output image")
     parser.add_argument('--feature_font_size', dest="feature_font_size", type=int, default=7, help="the file for the output image")
     parser.add_argument('--format', dest="format", choices=["png","svg","pdf"], default='png', type=str, help="the format for the output file")
+    parser.add_argument('--customized_colors',dest="customized_colors", help="Accept a list of colors in format like <red,blue,yellow>", type=str, default="")
     parser.add_argument('--dpi',dest="dpi", type=int, default=72)
     parser.add_argument('--title',dest="title", type=str, default="")
     parser.add_argument('--title_font_size',dest="title_font_size", type=str, default="12")
@@ -172,6 +175,9 @@ def plot_histo_ver(path,params,data,report_features):
 if __name__ == '__main__':
     params = read_params(sys.argv)
     params['fore_color'] = 'w' if params['back_color'] == 'k' else 'k'
+    # support customized_colors
+    if params['customized_colors']:
+        colors = [i.strip() for i in params['customized_colors'].split(',')]
     data = read_data(params['input_file'],params['output_file'],params['otu_only'])
     if params['orientation'] == 'v': plot_histo_ver(params['output_file'],params,data,params['report_features'])
     else: plot_histo_hor(params['output_file'],params,data,len(data['cls']) == 2,params['report_features'])
