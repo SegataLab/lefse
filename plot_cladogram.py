@@ -6,6 +6,7 @@ matplotlib.use('Agg')
 from pylab import *
 from lefse import *
 import numpy as np
+# support outputting editable texts in pdf
 matplotlib.rcParams['pdf.fonttype'] = 42
 
 colors = ['r','g','b','m','c',[1.0,0.5,0.0],[0.0,1.0,0.0],[0.33,0.125,0.0],[0.75,0.75,0.75],'k']
@@ -316,6 +317,7 @@ def draw_tree(out_file,tree,params):
 
     h, l = ax.get_legend_handles_labels()
     if len(l) > 0:
+        # Each column allows at most 35 species (rows)
         ncol = len(l)//35+1
         leg = ax.legend(bbox_to_anchor=(1.02, 1), frameon=False, loc=2, borderaxespad=0.,
                 prop={'size':params['label_font_size']},ncol=ncol)
@@ -335,7 +337,7 @@ def draw_tree(out_file,tree,params):
         if l2 != None:
             for o in l2.findobj(get_col_attr):
                     o.set_color(params['fore_color'])
-
+    # add bbox_inches to deal with legnd overflow
     plt.savefig(out_file,format=params['format'],facecolor=params['back_color'],edgecolor=params['fore_color'],dpi=params['dpi'], bbox_inches='tight')
     plt.close()    
 

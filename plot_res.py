@@ -175,6 +175,7 @@ def plot_histo_ver(path,params,data,report_features):
 if __name__ == '__main__':
     params = read_params(sys.argv)
     params['fore_color'] = 'w' if params['back_color'] == 'k' else 'k'
+    # support customized_colors
     if params['customized_colors']:
         colors = [i.strip() for i in params['customized_colors'].split(',')]
     data = read_data(params['input_file'],params['output_file'],params['otu_only'])
