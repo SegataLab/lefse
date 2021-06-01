@@ -4,7 +4,7 @@ import os,sys,math,pickle
 from lefse import *
 
 def read_params(args):
-    parser = argparse.ArgumentParser(description='LEfSe 1.0')
+    parser = argparse.ArgumentParser(description='LEfSe 1.1.01')
     parser.add_argument('input_file', metavar='INPUT_FILE', type=str, help="the input file")
     parser.add_argument('output_file', metavar='OUTPUT_FILE', type=str,
                 help="the output file containing the data for the visualization module")
