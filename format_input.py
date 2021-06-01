@@ -450,7 +450,7 @@ if  __name__ == '__main__':
 
     cls['subclass'] = rename_same_subcl(cls['class'],cls['subclass'])
 #   if 'subclass' in cls.keys(): cls = group_small_subclasses(cls,params['subcl_min_card'])
-    class_sl,subclass_sl,class_hierarchy = get_class_slices(list(zip(cls['class'], cls['subclass'], cls['subject'])))
+    class_sl,subclass_sl,class_hierarchy = get_class_slices(list(zip(*cls.values())))
 
     feats = dict([(d[0],d[1:]) for d in data])
 
