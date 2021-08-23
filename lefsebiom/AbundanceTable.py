@@ -34,7 +34,6 @@ __status__ = "Development"
 
 import csv
 import sys
-import blist
 from .CClade import CClade
 from .ConstantsBreadCrumbs import ConstantsBreadCrumbs
 import copy

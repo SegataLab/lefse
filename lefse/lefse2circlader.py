@@ -17,7 +17,8 @@ def read_params(args):
 
     return vars(parser.parse_args()) 
 
-def lefse2circlader(par):
+def lefse2circlader():
+    par = read_params(sys.argv)
     finp,fout = bool(par['inp_f']), bool(par['out_f'])
 
     with open(par['inp_f']) if finp else sys.stdin as inpf:
@@ -34,8 +35,7 @@ def lefse2circlader(par):
             out_file.write( "\t".join( c ) + "\n" )
 
 if __name__ == '__main__':
-    params = read_params(sys.argv)
-    lefse2circlader(params)
+    lefse2circlader()
 
 
 

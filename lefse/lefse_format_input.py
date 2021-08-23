@@ -3,7 +3,8 @@
 import sys,os,argparse,pickle,re,numpy
 
 import functools
-
+from lefsebiom.ConstantsBreadCrumbs import *
+from lefsebiom.AbundanceTable import *
 
 #***************************************************************************************************************
 #*   Log of change                                                                                             *
@@ -379,26 +380,9 @@ def  check_params_for_biom_case(params, CommonArea):
             params['subclass'] =  3
     return params
 
-
-
-if  __name__ == '__main__':
+def format_input():
     CommonArea = dict()         #Build a Common Area to pass variables in the biom case
     params = read_params(sys.argv)
-
-    #*************************************************************
-    #* Conditionally import breadcrumbs if file is a biom file   *
-    #* If it is and no breadcrumbs found - abnormally exit       *
-    #*************************************************************
-    if  params['input_file'].endswith('.biom'):
-        try:
-            from lefsebiom.ConstantsBreadCrumbs import *
-            from lefsebiom.AbundanceTable import *
-        except ImportError:
-            sys.stderr.write("************************************************************************************************************ \n")
-            sys.stderr.write("* Error:   Breadcrumbs libraries not detected - required to process biom files - run abnormally terminated * \n")
-            sys.stderr.write("************************************************************************************************************ \n")
-            exit(1)
-
 
     if type(params['subclass']) is int and int(params['subclass']) < 1:
         params['subclass'] = None
@@ -475,3 +459,6 @@ if  __name__ == '__main__':
     with open(params['output_file'], 'wb') as back_file:
         pickle.dump(out,back_file)
 
+
+if  __name__ == '__main__':
+    format_input()

@@ -3,7 +3,7 @@
 import os,sys,matplotlib,zipfile,argparse,string
 matplotlib.use('Agg')
 from pylab import *
-from lefse import *
+from lefse.lefse import *
 import random as rand
 
 colors = ['r','g','b','m','c']
@@ -137,7 +137,7 @@ def plot(name,k_n,feat,params):
 	plt.close()
 	return name 
 
-if __name__ == '__main__':
+def plot_features():
 	params = read_params(sys.argv)
 	params['fore_color'] = 'w' if params['back_color'] == 'k' else 'k'
 	features = read_data(params['input_file_1'],params['input_file_2'],params)
@@ -151,3 +151,7 @@ if __name__ == '__main__':
 			if params['f'] == 'one': plot(params['output_file'],k,f,params)
 			else: plot(params['output_file']+str(int(f['sig']))+"_"+"-".join(k.split("."))+"."+params['format'],k,f,params) 
 	if params['archive'] == "zip": file.close()
+
+
+if __name__ == '__main__':
+	plot_features()

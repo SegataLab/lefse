@@ -6,7 +6,7 @@ matplotlib.use('Agg')
 from pylab import *
 from collections import defaultdict
 
-from lefse import *
+from lefse.lefse import *
 import argparse
 
 colors = ['r','g','b','m','c','y','k','w']
@@ -71,7 +71,7 @@ def plot_histo_hor(path,params,data,bcl,report_features):
     ls, rs = params['ls'], 1.0-params['rs']
     plt.subplots_adjust(left=ls,right=rs,top=1-head*(1.0-ints/(ints+ht)), bottom=tail*(1.0-ints/(ints+ht)))
 
-    fig.canvas.set_window_title('LDA results')
+    fig.canvas.manager.set_window_title('LDA results')
 
     l_align = {'horizontalalignment':'left', 'verticalalignment':'baseline'}
     r_align = {'horizontalalignment':'right', 'verticalalignment':'baseline'}
@@ -138,7 +138,7 @@ def plot_histo_ver(path,params,data,report_features):
     fig = plt.figure(edgecolor=params['back_color'],facecolor=params['back_color'],figsize=(params['width'], params['height'])) 
     ax = fig.add_subplot(111,facecolor=params['back_color'])
     plt.subplots_adjust(top=0.9, left=params['ls'], right=params['rs'], bottom=0.3) 
-    fig.canvas.set_window_title('LDA results')   
+    fig.canvas.manager.set_window_title('LDA results')   
     l_align = {'horizontalalignment':'left', 'verticalalignment':'baseline'}
     r_align = {'horizontalalignment':'right', 'verticalalignment':'baseline'} 
     added = []
@@ -169,11 +169,13 @@ def plot_histo_ver(path,params,data,report_features):
     plt.savefig(path,format=params['format'],facecolor=params['back_color'],edgecolor=params['fore_color'],dpi=params['dpi'])
     plt.close() 
 
-if __name__ == '__main__':
+def plot_res():
     params = read_params(sys.argv)
     params['fore_color'] = 'w' if params['back_color'] == 'k' else 'k'
     data = read_data(params['input_file'],params['output_file'],params['otu_only'])
     if params['orientation'] == 'v': plot_histo_ver(params['output_file'],params,data,params['report_features'])
     else: plot_histo_hor(params['output_file'],params,data,len(data['cls']) == 2,params['report_features'])
 
-    
+
+if __name__ == '__main__':
+    plot_res()

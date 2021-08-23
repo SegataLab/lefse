@@ -19,8 +19,10 @@ note, if you are using bioBakery (Vagrant VM or cloud) you do not need
 to install LEfSe because the tool and its dependencies are already
 installed.
 
-Install with Conda: `$ conda install -c biobakery lefse`
+Install with Conda: `$ conda install -c bioconda lefse`
 
 Install with Docker: `$ docker run -it biobakery/lefse bash`
+
+LEfSe requires R v. 3.6 or higher and the R libraries survival, mvtnorm, modeltools, coin, MASS. 
 
 We provide support for LEfSe users. Please join our [bioBakery Support Forum](https://forum.biobakery.org/c/Downstream-analysis-and-statistics/LEfSe) designated specifically for LEfSe users. 

@@ -4,7 +4,7 @@ import os,sys,matplotlib,argparse,string
 # from io import StringIO
 matplotlib.use('Agg')
 from pylab import *
-from lefse import *
+from lefse.lefse import *
 import numpy as np
 
 colors = ['r','g','b','m','c',[1.0,0.5,0.0],[0.0,1.0,0.0],[0.33,0.125,0.0],[0.75,0.75,0.75],'k']
@@ -338,9 +338,12 @@ def draw_tree(out_file,tree,params):
     plt.savefig(out_file,format=params['format'],facecolor=params['back_color'],edgecolor=params['fore_color'],dpi=params['dpi'], bbox_inches='tight')
     plt.close()    
 
-if __name__ == '__main__':
+def plot_cladogram():
     params = read_params(sys.argv)
     params['fore_color'] = 'w' if params['back_color'] == 'k' else 'k'
     clad_tree = read_data(params['input_file'],params)    
     draw_tree(params['output_file'],clad_tree,params)
     
+
+if __name__ == '__main__':
+    plot_cladogram()

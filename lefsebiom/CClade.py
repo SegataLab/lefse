@@ -32,7 +32,6 @@ __maintainer__ = "Timothy Tickle"
 __email__ = "ttickle@sph.harvard.edu"
 __status__ = "Development"
 
-import blist
 import sys
 
 class CClade:
@@ -64,7 +63,7 @@ class CClade:
         Set all the values given as a list in the same order given.
 		"""
 		
-		self.m_adValues = blist.blist( [0] ) * len( adValues )
+		self.m_adValues = [0] * len( adValues )
 		for i, d in enumerate( adValues ):
 			if d:
 				self.m_adValues[i] = d

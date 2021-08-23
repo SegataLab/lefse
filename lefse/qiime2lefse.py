@@ -40,7 +40,13 @@ def read_params(args):
 
 
 
-def qiime2lefse(  fin, fmd, fout, all_md, sel_md ):
+def qiime2lefse():
+    pars = read_params( sys.argv )
+    fin = pars['in']
+    fmd = pars['md']
+    fout = pars['out']
+    all_md = not pars['c'] and not pars['s'] and not pars['u']
+    sel_md = [pars['c'],pars['s'],pars['u']]
     with (fin if fin==sys.stdin else open(fin)) as inpf :
         lines = [list(ll) for ll in 
                     (zip(*[l.strip().split('\t') 
@@ -79,10 +85,4 @@ def qiime2lefse(  fin, fmd, fout, all_md, sel_md ):
             outf.write( "\t".join(l) + "\n" )
 
 if __name__ == '__main__':
-    pars = read_params( sys.argv )
-  
-    qiime2lefse(   fin     = pars['in'],
-                   fmd     = pars['md'],
-                   fout    = pars['out'],
-                   all_md  = not pars['c'] and not pars['s'] and not pars['u'],
-                   sel_md  = [pars['c'],pars['s'],pars['u']])
+    qiime2lefse()

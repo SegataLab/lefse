@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import os,sys,math,pickle
-from lefse import *
+from lefse.lefse import *
 
 def read_params(args):
     parser = argparse.ArgumentParser(description='LEfSe 1.1.01')
@@ -53,7 +53,7 @@ def read_params(args):
     return params
 
 
-if __name__ == '__main__':
+def lefse_run():
     init()
     params = read_params(sys.argv)
     feats,cls,class_sl,subclass_sl,class_hierarchy = load_data(params['input_file'])
@@ -102,3 +102,7 @@ if __name__ == '__main__':
     outres['wilcox_res'] = wilcoxon_res
     print("Number of discriminative features with abs LDA score >",params['lda_abs_th'],":",len(lda_res_th))
     save_res(outres,params["output_file"])
+
+
+if __name__ == '__main__':
+    lefse_run()
