@@ -25,12 +25,12 @@ conda activate lefse
 # is 1M: this is done only for obtaining more meaningful values for the LDA score
 lefse_format_input.py hmp_aerobiosis_small.txt hmp_aerobiosis_small.in -c 1 -s 2 -u 3 -o 1000000
 
-# run_lefse.py performs the actual statistica analysis
+# lefse_run.py performs the actual statistica analysis
 #
 # Apply LEfSe on the formatted data producing the results (to be further processed
 # for visualization with the other modules). The option available
 # can be listed using the -h option 
-run_lefse.py hmp_aerobiosis_small.in hmp_aerobiosis_small.res
+lefse_run.py hmp_aerobiosis_small.in hmp_aerobiosis_small.res
 
 # lefse_plot_res.py visualizes the output
 #
