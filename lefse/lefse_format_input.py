@@ -434,7 +434,13 @@ def format_input():
 
     cls['subclass'] = rename_same_subcl(cls['class'],cls['subclass'])
 #   if 'subclass' in cls.keys(): cls = group_small_subclasses(cls,params['subcl_min_card'])
-    class_sl,subclass_sl,class_hierarchy = get_class_slices(list(zip(cls['class'], cls['subclass'], cls['subject'])))
+
+    if ('subclass' in cls.keys()) and ('subject' in cls.keys()):
+        class_sl, subclass_sl, class_hierarchy = get_class_slices(list(zip(cls['class'], cls['subclass'], cls['subject'])))
+    elif ('subclass' in cls.keys()) and ('subject' not in cls.keys()):
+        class_sl, subclass_sl, class_hierarchy = get_class_slices(list(zip(cls['class'], cls['subclass'])))
+    elif ('subclass' not in cls.keys()) and ('subject' in cls.keys()):
+        class_sl, subclass_sl, class_hierarchy = get_class_slices(list(zip(cls['class'], cls['subject'])))
 
     feats = dict([(d[0],d[1:]) for d in data])
 
