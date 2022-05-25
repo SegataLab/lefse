@@ -8,7 +8,7 @@
 # Download a 3-classes example (with subclasses and subjects) from huttenhower.sph.harvard.edu
 # It is a small subset of the HMP 16S dataset for finding biomarkers characterizing
 # different level of oxygen availability in different bodysites
-wget https://github.com/biobakery/biobakery/raw/master/demos/biobakery_demos/data/lefse/input/hmp_small_aerobiosis.txt -O hmp_aerobiosis_small.txt
+wget https://github.com/biobakery/biobakery/raw/master/test_suite/biobakery_tests/data/lefse/input/hmp_small_aerobiosis.txt -O hmp_aerobiosis_small.txt
 
 # As using LEfSe through bioconda, need to activate the LEfSe installation:
 conda activate lefse
