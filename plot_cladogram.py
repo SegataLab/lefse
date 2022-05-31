@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 
 import os,sys,matplotlib,argparse,string
+# from io import StringIO
 matplotlib.use('Agg')
 from pylab import *
 from lefse import *
 import numpy as np
+# support outputting editable texts in pdf
+matplotlib.rcParams['pdf.fonttype'] = 42
 
 colors = ['r','g','b','m','c',[1.0,0.5,0.0],[0.0,1.0,0.0],[0.33,0.125,0.0],[0.75,0.75,0.75],'k']
 dark_colors = [[0.4,0.0,0.0],[0.0,0.2,0.0],[0.0,0.0,0.4],'m','c',[1.0,0.5,0.0],[0.0,1.0,0.0],[0.33,0.125,0.0],[0.75,0.75,0.75],'k']
@@ -42,6 +45,7 @@ def read_params(args):
     parser.add_argument('input_file', metavar='INPUT_FILE', type=str, help="tab delimited input file")
     parser.add_argument('output_file', metavar='OUTPUT_FILE', type=str, help="the file for the output image")
     parser.add_argument('--clade_sep',dest="clade_sep", type=float, default=1.5)
+    parser.add_argument('--customized_colors',dest="customized_colors", help="Accept a list of colors in format like <red,blue,yellow>", type=str, default="")
     parser.add_argument('--max_lev',dest="max_lev", type=int, default=-1)
     parser.add_argument('--max_point_size',dest="max_point_size", type=float, default=6.0)
     parser.add_argument('--min_point_size',dest="min_point_size", type=float, default=1)
@@ -51,7 +55,7 @@ def read_params(args):
     parser.add_argument('--radial_start_lev',dest="radial_start_lev", type=int, default=1)
     parser.add_argument('--labeled_start_lev',dest="labeled_start_lev", type=int, default=2)
     parser.add_argument('--labeled_stop_lev',dest="labeled_stop_lev", type=int, default=5)
-    parser.add_argument('--abrv_start_lev',dest="abrv_start_lev", type=int, default=3)
+    parser.add_argument('--abrv_start_lev',dest="abrv_start_lev", type=int, default=2)
     parser.add_argument('--abrv_stop_lev',dest="abrv_stop_lev", type=int, default=5)
     parser.add_argument('--expand_void_lev',dest="expand_void_lev", type=int, default=1)
     parser.add_argument('--class_legend_vis',dest="class_legend_vis", type=int, default=1)
@@ -98,7 +102,8 @@ def get_all_nodes(father):
 
 def read_data(input_file,params):
     with open(input_file, 'r') as inp:
-        if params['sub_clade'] == "": rows = [line.strip().split()[:-1] for line in inp.readlines() if params['max_lev'] < 1 or line.split()[0].count(".") < params['max_lev']]
+        if params['sub_clade'] == "": 
+            rows = [line.strip().split()[:-1] for line in inp.readlines() if params['max_lev'] < 1 or line.split()[0].count(".") < params['max_lev']]
         else: rows = [line.split(params['sub_clade']+".")[1].strip().split()[:-1] for line in inp.readlines() if ( params['max_lev'] < 1 or line.split()[0].count(".") < params['max_lev'] ) and line.startswith(params['sub_clade']+".")]
     all_names = [lin[0] for lin in rows]
     to_add = []
@@ -229,8 +234,8 @@ def plot_lines(father,params,depth,ax,xf):
     return x,r 
 
 def uniqueid():
-    for l in string.lowercase: yield l
-    for l in string.lowercase:
+    for l in string.ascii_lowercase: yield l
+    for l in string.ascii_lowercase:
         for i in range(10):
             yield l+str(i)
     i = 0
@@ -245,12 +250,12 @@ def plot_names(father,params,depth,ax,u_i,seps):
         if father.prev_leaf == -1 or father.next_leaf == -1:
             fr_0, fr_1 = father.pos[0], father.pos[0]
         else: fr_0, fr_1 =  (father.pos[0]+father.prev_leaf.pos[0])*0.5, (father.pos[0]+father.next_leaf.pos[0])*0.5
-        for i,child in enumerate(children):
-                fr,to = plot_names(child,params,depth,ax,u_i,seps)
-                if i == 0: fr_0 = fr
+    for i,child in enumerate(children):
+        fr,to = plot_names(child,params,depth,ax,u_i,seps)
+        if i == 0: fr_0 = fr
         fr_1 = to 
-        if father.get_color() != 'y' and params['labeled_start_lev'] < l <= params['labeled_stop_lev']+1:
-                col = father.get_color()
+    if father.get_color() != 'y' and params['labeled_start_lev'] < l <= params['labeled_stop_lev']+1:
+        col = father.get_color()
         dd = params['labeled_stop_lev'] - params['labeled_start_lev'] + 1 
         de = depth - 1
         dim = 1.0/float(de)
@@ -273,7 +278,7 @@ def plot_names(father,params,depth,ax,u_i,seps):
                 if col not in colors: col = params['fore_color']
                 else: col = dark_colors[colors.index(col)%len(dark_colors)]
             ax.text((fr_0+fr_1)*0.5, clto+float(l-1)/float(de)-dim*perc_ext/2.0, txt, size = params['label_font_size'], rotation=des, ha ="center", va="center", color=col)    
-        return fr_0, fr_1
+    return fr_0, fr_1
 
 def draw_tree(out_file,tree,params):
     plt_size = 7
@@ -304,7 +309,6 @@ def draw_tree(out_file,tree,params):
     plot_lines(tree['root'],params,depth,ax,0)
     plot_points(tree['root'],params,pt_scale,ax)
     plot_names(tree['root'],params,depth,ax,uniqueid(),seps)
-
     r = np.arange(0, 3.0, 0.01)
     theta = 2*np.pi*r
     
@@ -313,11 +317,14 @@ def draw_tree(out_file,tree,params):
 
     h, l = ax.get_legend_handles_labels()
     if len(l) > 0:
-        leg = ax.legend(bbox_to_anchor=(1.05, 1), frameon=False, loc=2, borderaxespad=0.,prop={'size':params['label_font_size']})
+        # Each column allows at most 35 species (rows)
+        ncol = len(l)//35+1
+        leg = ax.legend(bbox_to_anchor=(1.02, 1), frameon=False, loc=2, borderaxespad=0.,
+                prop={'size':params['label_font_size']},ncol=ncol)
         if leg != None:
             gca().add_artist(leg)
             for o in leg.findobj(get_col_attr):
-                            o.set_color(params['fore_color'])
+                o.set_color(params['fore_color'])
     
     cll = sorted(tree['classes']) if params['all_feats'] == "" else sorted(params['all_feats'].split(":"))
     nll = [ax.bar(0.0, 0.0, width = 0.0, bottom = 0.0, color=colors[i%len(colors)], label=c) for i,c in enumerate(cll) if c in tree['classes']]
@@ -330,13 +337,15 @@ def draw_tree(out_file,tree,params):
         if l2 != None:
             for o in l2.findobj(get_col_attr):
                     o.set_color(params['fore_color'])
-
-    plt.savefig(out_file,format=params['format'],facecolor=params['back_color'],edgecolor=params['fore_color'],dpi=params['dpi'])
+    # add bbox_inches to deal with legnd overflow
+    plt.savefig(out_file,format=params['format'],facecolor=params['back_color'],edgecolor=params['fore_color'],dpi=params['dpi'], bbox_inches='tight')
     plt.close()    
 
 if __name__ == '__main__':
     params = read_params(sys.argv)
     params['fore_color'] = 'w' if params['back_color'] == 'k' else 'k'
+    if params['customized_colors']:
+        colors = [i.strip() for i in params['customized_colors'].split(',')]
     clad_tree = read_data(params['input_file'],params)    
     draw_tree(params['output_file'],clad_tree,params)
     
