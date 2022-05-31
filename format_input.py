@@ -51,7 +51,7 @@ def read_input_file(inp_file, CommonArea):
         return CommonArea                       #*  And return the CommonArea
 
     with open(inp_file) as inp:
-        CommonArea['ReturnedData'] = [[v.strip() for v in line.strip().split("\t")] for line in inp.readlines()]
+        CommonArea['ReturnedData'] = [[v.strip() for v in line.strip().split("\t")] for line in inp.readlines() if line.strip()]
         return CommonArea
 
 def transpose(data):
@@ -449,8 +449,14 @@ if  __name__ == '__main__':
         cls['subclass'] = [str(cl)+"_subcl" for cl in cls['class']]
 
     cls['subclass'] = rename_same_subcl(cls['class'],cls['subclass'])
+    
+    #if params['subject'] is None:
+
+        #cls['subject'] = [str(cl)+"_subcl" for cl in cls['class']]
+
 #   if 'subclass' in cls.keys(): cls = group_small_subclasses(cls,params['subcl_min_card'])
-    class_sl,subclass_sl,class_hierarchy = get_class_slices(list(zip(cls['class'], cls['subclass'], cls['subject'])))
+    # class_sl,subclass_sl,class_hierarchy = get_class_slices(list(zip(cls['class'], cls['subclass'], cls['subject'])))
+    class_sl,subclass_sl,class_hierarchy = get_class_slices(list(zip(*cls.values())))
 
     feats = dict([(d[0],d[1:]) for d in data])
 
