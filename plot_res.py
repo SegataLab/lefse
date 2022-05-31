@@ -6,6 +6,8 @@ matplotlib.use('Agg')
 from pylab import *
 from collections import defaultdict
 
+matplotlib.rcParams['pdf.fonttype'] = 42 
+
 from lefse import *
 import argparse
 
@@ -17,6 +19,7 @@ def read_params(args):
     parser.add_argument('output_file', metavar='OUTPUT_FILE', type=str, help="the file for the output image")
     parser.add_argument('--feature_font_size', dest="feature_font_size", type=int, default=7, help="the file for the output image")
     parser.add_argument('--format', dest="format", choices=["png","svg","pdf"], default='png', type=str, help="the format for the output file")
+    parser.add_argument('--customized_colors',dest="customized_colors", help="Accept a list of colors in format like <red,blue,yellow>", type=str, default="")
     parser.add_argument('--dpi',dest="dpi", type=int, default=72)
     parser.add_argument('--title',dest="title", type=str, default="")
     parser.add_argument('--title_font_size',dest="title_font_size", type=str, default="12")
@@ -101,7 +104,7 @@ def plot_histo_hor(path,params,data,bcl,report_features):
         indcl = cls.index(data['rows'][i][2])
         if params['n_scl'] < 0: rr = r[0]
         else: rr = ".".join(r[0].split(".")[-params['n_scl']:])
-        if len(rr) > params['max_feature_len']: rr = rr[:params['max_feature_len']/2-2]+" [..]"+rr[-params['max_feature_len']/2+2:]
+        if len(rr) > params['max_feature_len']: rr = rr[:int(params['max_feature_len']/2)-2]+" [..]"+rr[int(-params['max_feature_len']/2)+2:]
         if m*(indcl*2-1) < 0 and bcl: ax.text(mv/40.0,float(i)-0.3,rr, l_align, size=params['feature_font_size'],color=params['fore_color'])
         else: ax.text(-mv/40.0,float(i)-0.3,rr, r_align, size=params['feature_font_size'],color=params['fore_color'])
     ax.set_title(params['title'],size=params['title_font_size'],y=1.0+head*(1.0-ints/(ints+ht))*0.8,color=params['fore_color'])
@@ -172,6 +175,9 @@ def plot_histo_ver(path,params,data,report_features):
 if __name__ == '__main__':
     params = read_params(sys.argv)
     params['fore_color'] = 'w' if params['back_color'] == 'k' else 'k'
+    # support customized_colors
+    if params['customized_colors']:
+        colors = [i.strip() for i in params['customized_colors'].split(',')]
     data = read_data(params['input_file'],params['output_file'],params['otu_only'])
     if params['orientation'] == 'v': plot_histo_ver(params['output_file'],params,data,params['report_features'])
     else: plot_histo_hor(params['output_file'],params,data,len(data['cls']) == 2,params['report_features'])
